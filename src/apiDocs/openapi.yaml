@@ -126,7 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataInvalidErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '401':
           description: User is unauthorized
           headers:
@@ -142,7 +142,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '500':
           description: Internal server error
           headers:
@@ -158,7 +158,119 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '501':
+          description: Not implemented error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+  /ielts/test/{testId}:
+    get:
+      summary: get test
+      description: get a existing IELTS test for a user
+      operationId: getExistingTest
+      parameters:
+        - in: path
+          name: testId
+          required: true
+          schema:
+            type: string
+      tags:
+        - Test
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/testResponse'
+        '400':
+          description: Invalid request in the payload
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '401':
+          description: User is unauthorized
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '500':
+          description: Internal server error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '501':
+          description: Not implemented error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
   
   /ielts/test/{testId}/speaking:
     post:
@@ -247,7 +359,104 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
   
-  /ielts/test/{testId}/speaking/stages/{stgId}:
+  /ielts/test/{testId}/speaking/stages:
+    get:
+      summary: Get all speaking test stages
+      description: Get all test stages in IELTS speaking test for a user
+      operationId: getAllSpeakingTestStage
+      tags:
+        - Speaking
+      parameters:
+        - in: path
+          name: testId
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/speakingTestStagesResponse'
+        '400':
+          description: Invalid request in the payload
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '401':
+          description: User is unauthorized
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '500':
+          description: Internal server error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '501':
+          description: Not implemented error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+  
+  /ielts/test/{testId}/speaking/stages/{stgNumber}:
     post:
       summary: Create new speaking test stage
       description: Create a new stage in IELTS speaking test for a user
@@ -256,7 +465,7 @@ paths:
         - Speaking
       parameters:
         - in: path
-          name: stgId
+          name: stgNumber
           required: true
           schema:
             type: string
@@ -338,27 +547,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-                
-  /ielts/test/{testId}/speaking/stages/{stgId}/question/{qid}:
     get:
-      summary: get speaking test question
-      description: get question in IELTS speaking test in particular stage for a user
-      operationId: getSpeakingTestQuestion
+      summary: Get speaking test stage
+      description: Get specific speaking test stage in IELTS speaking test for a user
+      operationId: getSpeakingTestStage
       tags:
         - Speaking
       parameters:
         - in: path
+          name: stgNumber
+          required: true
+          schema:
+            type: string
+        - in: path
           name: testId
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: stgId
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: qid
           required: true
           schema:
             type: string
@@ -380,7 +582,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/speakingTestQuestionGetResponse'
+                $ref: '#/components/schemas/speakingTestStageResponse'
         '400':
           description: Invalid request in the payload
           headers:
@@ -429,6 +631,113 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+                
+  /ielts/test/{testId}/speaking/stages/{stgNumber}/question/{qid}:
+    get:
+      summary: get speaking test question
+      description: get question in IELTS speaking test in particular stage for a user
+      operationId: getSpeakingTestQuestion
+      tags:
+        - Speaking
+      parameters:
+        - in: path
+          name: testId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: stgNumber
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: qid
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/speakingTestQuestionGetResponse'
+        '400':
+          description: Invalid request in the payload
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '401':
+          description: User is unauthorized
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '500':
+          description: Internal server error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '501':
+          description: Not implemented error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
     put:
       summary: update speaking test question
       description: update question in IELTS speaking test in particular stage for a user
@@ -442,7 +751,7 @@ paths:
           schema:
             type: string
         - in: path
-          name: stgId
+          name: stgNumber
           required: true
           schema:
             type: string
@@ -491,7 +800,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataInvalidErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '401':
           description: User is unauthorized
           headers:
@@ -507,7 +816,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '500':
           description: Internal server error
           headers:
@@ -523,7 +832,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
+        '501':
+          description: Not implemented error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
 
 components:
   schemas:
@@ -551,6 +876,9 @@ components:
         name:
           type: string
           example: Test1
+        status:
+          type: string
+          example: CREATED
           
     # Speaking Test data types
     speakingTestRequest:
@@ -577,6 +905,7 @@ components:
           type: string
           example: SpeakingTestStage1
     speakingTestStageResponse:
+      type: object
       properties:
         id:
           type: string
@@ -587,6 +916,13 @@ components:
         generatedQuestionCount:
           type: number
           example: 3
+        status:
+          type: number
+          example: CREATED
+    speakingTestStagesResponse:
+      type: array
+      items: 
+        $ref: '#/components/schemas/speakingTestStageResponse'
     
     # Speaking test question data types
     speakingTestQuestionGetResponse:
@@ -625,7 +961,7 @@ components:
 
     
     # Error data types
-    DataInvalidErrorResponse:
+    ELCITELTSErrorResponse:
       type: object
       properties:
         code:
@@ -634,24 +970,6 @@ components:
         message:
           type: string
           example: Invalid test name
-    UnauthorizedErrorResponse:
-      type: object
-      properties:
-        code:
-          type: number
-          example: 401
-        message:
-          type: string
-          example: User is unauthorized or session is expired
-    InternalErrorResponse:
-      type: object
-      properties:
-        code:
-          type: number
-          example: 500
-        message:
-          type: string
-          example: Database error
 
   securitySchemes:
     bearerAuth:  # Moved the section to align with components

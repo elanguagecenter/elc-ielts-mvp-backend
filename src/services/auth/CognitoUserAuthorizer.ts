@@ -7,10 +7,11 @@ import jwkToBuffer from "jwk-to-pem";
 import ELCIELTSUnauthorizedError from "../../exception/ELCIELTSUnauthorizedError";
 
 class CognitoUserAuthorizer implements UserAuthorizer {
+  private static instance = new CognitoUserAuthorizer();
   private constructor() {}
 
   static GetInstance(): CognitoUserAuthorizer {
-    return new CognitoUserAuthorizer();
+    return this.instance;
   }
   authorize(req: Request, res: Response, next: NextFunction): void {
     const token = this.extractToken(req);

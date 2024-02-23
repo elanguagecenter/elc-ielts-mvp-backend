@@ -5,6 +5,8 @@ import healthCheckRouter from "./routes/HealthCheckRoute";
 import { SimpleErrorHandler } from "./middlewares/GlobalErrorHandlingMiddleware";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
+import testRoute from "./routes/TestRoute";
+import speakingTestRoute from "./routes/SpeakingTestRoute";
 
 const app: Express = express();
 
@@ -18,6 +20,8 @@ app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Buisness logic routes
 app.use("/healthcheck", healthCheckRouter);
+app.use("/ielts/test", testRoute);
+app.use("/ielts/test/:testId/speaking", speakingTestRoute);
 
 /* Global middlewares
  * 1- Error handling middleware
@@ -26,4 +30,5 @@ app.use(SimpleErrorHandler);
 
 app.listen(process.env.PORT, () => {
   console.log("Server Listening on PORT:", configs.port);
+  console.log("API Doc URL:", `${configs.serverUrl}/api`);
 });
