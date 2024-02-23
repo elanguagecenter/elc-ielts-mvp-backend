@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import jwkToPem from "jwk-to-pem";
 import configs from "../../config/configs";
 import jwkToBuffer from "jwk-to-pem";
+import ELCIELTSUnauthorizedError from "../../exception/ELCIELTSUnauthorizedError";
 
 class CognitoUserAuthorizer implements UserAuthorizer {
   private constructor() {}
@@ -17,13 +18,13 @@ class CognitoUserAuthorizer implements UserAuthorizer {
       const jwks = JSON.parse(configs.awsCognitoJwk);
       const result = jwks.keys.map((jwk: jwkToPem.JWK) => this.verifyJwt(token, jwk)).filter((res: any) => res.success);
       if (result.length == 0) {
-        next(new Error("Unauthorized"));
+        next(new ELCIELTSUnauthorizedError("User is unauthorized or user session is expired"));
       } else {
         req.userData = result[0].data;
         next();
       }
     } else {
-      next(new Error("Unauthorized"));
+      next(new ELCIELTSUnauthorizedError("User is unauthorized to perform the action"));
     }
   }
 
