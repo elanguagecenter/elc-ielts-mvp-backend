@@ -54,6 +54,7 @@ model student {
 //* -------------------------------------------------------------------------------------------------------- *//
 model test {
   test_id            String          @id @default(uuid())
+  test_name          String          @db.VarChar(200)
   current_status     String          @db.VarChar(20)
   created_time       DateTime        @default(now())
   last_modified_time DateTime        @updatedAt
@@ -128,7 +129,8 @@ model speaking_test_status {
 model speaking_test_part {
   speaking_test_part_id String        @id @default(uuid())
   generated_question    String
-  uploaded_media_url    String
+  uploaded_media_url    String?
+  status                String        @db.VarChar(20)
   created_time          DateTime      @default(now())
   last_modified_time    DateTime      @updatedAt
   speaking_test         speaking_test @relation(fields: [speaking_test_id], references: [speaking_test_id])
@@ -163,8 +165,9 @@ model writing_test_status {
 model writing_test_part {
   writing_test_part_id String       @id @default(uuid())
   generated_question   String
-  submitted_answer     String
-  evaluated_result     String
+  submitted_answer     String?
+  evaluated_result     String?
+  status               String       @db.VarChar(20)
   created_time         DateTime     @default(now())
   last_modified_time   DateTime     @updatedAt
   writing_test         writing_test @relation(fields: [writing_test_id], references: [writing_test_id])
@@ -200,6 +203,7 @@ model reading_test_status {
 model reading_test_part {
   reading_test_part_id    String             @id @default(uuid())
   generated_scenario_text String
+  status                  String             @db.VarChar(20)
   created_time            DateTime           @default(now())
   last_modified_time      DateTime           @updatedAt
   reading_test            reading_test       @relation(fields: [reading_test_id], references: [reading_test_id])
@@ -210,8 +214,10 @@ model reading_test_part {
 model reading_question {
   reading_question_id  String            @id @default(uuid())
   generated_question   String
-  submitted_anser      String
-  evaluated_result     String
+  submitted_anser      String?
+  evaluated_result     String?
+  status               String            @db.VarChar(20)
+  type                 String            @db.VarChar(20)
   created_time         DateTime          @default(now())
   last_modified_time   DateTime          @updatedAt
   reading_test_part    reading_test_part @relation(fields: [reading_test_part_id], references: [reading_test_part_id])
@@ -247,6 +253,7 @@ model listening_test_status {
 model listening_test_part {
   listening_test_part_id      String               @id @default(uuid())
   generated_conversation_text String
+  status                      String               @db.VarChar(20)
   created_time                DateTime             @default(now())
   last_modified_time          DateTime             @updatedAt
   listening_test              listening_test       @relation(fields: [listening_test_id], references: [listening_test_id])
@@ -257,8 +264,10 @@ model listening_test_part {
 model listening_question {
   listening_question_id  String              @id @default(uuid())
   generated_question     String
-  submitted_answer       String
-  evaluated_result       String
+  submitted_answer       String?
+  evaluated_result       String?
+  status                 String              @db.VarChar(20)
+  type                   String              @db.VarChar(20)
   created_time           DateTime            @default(now())
   last_modified_time     DateTime            @updatedAt
   listening_test_part    listening_test_part @relation(fields: [listening_test_part_id], references: [listening_test_part_id])

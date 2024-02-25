@@ -1,6 +1,6 @@
 import ELCIELTSNotImplementedError from "../../exception/ELCIELTSNotImplementedError";
-import ISpeakingTestRepository from "../../repository/test/ISpeakingTestRepository";
-import PrismaSpeakingTestRepository from "../../repository/test/PrismaSpeakingTestRepository";
+import ISpeakingTestRepository from "../../repository/speakingTest/ISpeakingTestRepository";
+import PrismaSpeakingTestRepository from "../../repository/speakingTest/PrismaSpeakingTestRepository";
 import { CreateSpekingTest, CreateSpekingTestStage, UpdateSpeakingTestQuestion } from "../../types/test/IELTSTestTypes";
 
 class SpeakingTestService {
