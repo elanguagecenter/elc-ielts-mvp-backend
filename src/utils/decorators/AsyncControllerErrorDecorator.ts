@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 
 function AsyncControllerHandle(target: any, methodName: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
