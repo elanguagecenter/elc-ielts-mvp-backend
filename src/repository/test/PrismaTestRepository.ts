@@ -1,8 +1,8 @@
 import prisma from "../../config/DatabaseSource";
-import Handle from "../../decorators/DBErrorHandlingDecorator";
+import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
 import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
-import { TestStatus } from "../../types/common/common";
-import { TestModel } from "../../types/dbtypes/models";
+import { TestStatus } from "../../utils/types/common/common";
+import { TestModel } from "../../utils/types/dbtypes/models";
 import ITestRepository from "./ITestRepository";
 
 class PrismaTestRepository implements ITestRepository {

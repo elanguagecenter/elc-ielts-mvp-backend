@@ -1,6 +1,6 @@
 import prisma from "../../config/DatabaseSource";
-import Handle from "../../decorators/DBErrorHandlingDecorator";
-import { TestStatusModel } from "../../types/dbtypes/models";
+import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
+import { TestStatusModel } from "../../utils/types/dbtypes/models";
 import ITestStatusRepository from "./ITestStatusRepository";
 
 class PrismaTestStatusRepository implements ITestStatusRepository {

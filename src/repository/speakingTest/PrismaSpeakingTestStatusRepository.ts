@@ -1,6 +1,6 @@
 import prisma from "../../config/DatabaseSource";
-import Handle from "../../decorators/DBErrorHandlingDecorator";
-import { SpeakingTestStatusModel } from "../../types/dbtypes/models";
+import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
+import { SpeakingTestStatusModel } from "../../utils/types/dbtypes/models";
 import ISpeakingTestStatusRepository from "./ISpeakingTestStatusRepository";
 
 class PrismaSpeakingTestStatusRepository implements ISpeakingTestStatusRepository {

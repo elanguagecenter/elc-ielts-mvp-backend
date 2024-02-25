@@ -1,5 +1,5 @@
-import { TestStatus } from "../../types/common/common";
-import { TestModel } from "../../types/dbtypes/models";
+import { TestStatus } from "../../utils/types/common/common";
+import { TestModel } from "../../utils/types/dbtypes/models";
 
 interface ITestRepository {
   create(studentId: string, testName: string): Promise<TestModel>;

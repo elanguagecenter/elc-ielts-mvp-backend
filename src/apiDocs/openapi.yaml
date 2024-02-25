@@ -46,7 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataInvalidErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '401':
           description: User is unauthorized
           headers:
@@ -62,7 +62,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '500':
           description: Internal server error
           headers:
@@ -78,7 +78,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
   /ielts/test:
     post:
       summary: Create new test
@@ -325,7 +325,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataInvalidErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '401':
           description: User is unauthorized
           headers:
@@ -341,7 +341,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '500':
           description: Internal server error
           headers:
@@ -357,7 +357,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
   
   /ielts/test/{testId}/speaking/stages:
     get:
@@ -514,7 +514,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataInvalidErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '401':
           description: User is unauthorized
           headers:
@@ -530,7 +530,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '500':
           description: Internal server error
           headers:
@@ -546,7 +546,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
     get:
       summary: Get speaking test stage
       description: Get specific speaking test stage in IELTS speaking test for a user
@@ -598,7 +598,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataInvalidErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '401':
           description: User is unauthorized
           headers:
@@ -614,7 +614,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
         '500':
           description: Internal server error
           headers:
@@ -630,7 +630,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalErrorResponse'
+                $ref: '#/components/schemas/ELCITELTSErrorResponse'
                 
   /ielts/test/{testId}/speaking/stages/{stgNumber}/question/{qid}:
     get:

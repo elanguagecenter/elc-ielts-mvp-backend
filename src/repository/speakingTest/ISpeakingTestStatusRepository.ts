@@ -1,4 +1,4 @@
-import { SpeakingTestStatusModel } from "../../types/dbtypes/models";
+import { SpeakingTestStatusModel } from "../../utils/types/dbtypes/models";
 
 interface ISpeakingTestStatusRepository {
   create(speakingTestId: string, status: string): Promise<SpeakingTestStatusModel>;

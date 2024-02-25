@@ -1,4 +1,4 @@
-import { TestStatusModel } from "../../types/dbtypes/models";
+import { TestStatusModel } from "../../utils/types/dbtypes/models";
 
 interface ITestStatusRepository {
   create(testId: string, status: string): Promise<TestStatusModel>;

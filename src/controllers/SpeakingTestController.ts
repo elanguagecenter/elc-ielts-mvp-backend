@@ -1,6 +1,6 @@
 import SpeakingTestService from "../services/test/SpeakingTestService";
 import { Response, Request } from "express";
-import { CreateSpekingTest, CreateSpekingTestStage, UpdateSpeakingTestQuestion } from "../types/test/IELTSTestTypes";
+import { CreateSpekingTest, CreateSpekingTestStage, UpdateSpeakingTestQuestion } from "../utils/types/test/IELTSTestTypes";
 
 export const createNewSpeakingTest = (req: Request, res: Response) => {
   const testId = req.params.testId;

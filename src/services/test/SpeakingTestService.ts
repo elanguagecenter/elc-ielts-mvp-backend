@@ -1,7 +1,8 @@
 import ELCIELTSNotImplementedError from "../../exception/ELCIELTSNotImplementedError";
 import ISpeakingTestRepository from "../../repository/speakingTest/ISpeakingTestRepository";
 import PrismaSpeakingTestRepository from "../../repository/speakingTest/PrismaSpeakingTestRepository";
-import { CreateSpekingTest, CreateSpekingTestStage, UpdateSpeakingTestQuestion } from "../../types/test/IELTSTestTypes";
+import { CreateSpekingTest, CreateSpekingTestStage, UpdateSpeakingTestQuestion } from "../../utils/types/test/IELTSTestTypes";
+import CommonValidator from "../../utils/validators/CommonValidator";
 
 class SpeakingTestService {
   private speakingTestRepository: ISpeakingTestRepository;
@@ -11,6 +12,8 @@ class SpeakingTestService {
 
   createSpeakingTest(testId: string, payload: CreateSpekingTest) {
     // TODO - Implement create speaking test logic
+    CommonValidator.validateNotEmptyOrBlankString(testId, "Test ID");
+    CommonValidator.validateNotEmptyOrBlankString(payload.name, "Test Name");
     throw new ELCIELTSNotImplementedError("Requested functionality is under construction");
   }
 

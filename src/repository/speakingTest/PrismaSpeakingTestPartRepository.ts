@@ -1,8 +1,8 @@
 import prisma from "../../config/DatabaseSource";
-import Handle from "../../decorators/DBErrorHandlingDecorator";
+import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
 import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
-import { TestPartStatus } from "../../types/common/common";
-import { SpeakingTestPartModel } from "../../types/dbtypes/models";
+import { TestPartStatus } from "../../utils/types/common/common";
+import { SpeakingTestPartModel } from "../../utils/types/dbtypes/models";
 import ISpeakingTestPartRepository from "./ISpeakingTestPartRepository";
 
 class PrismaSpeakingTestPartRepository implements ISpeakingTestPartRepository {
