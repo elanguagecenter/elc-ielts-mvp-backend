@@ -21,7 +21,11 @@ class CognitoUserAuthorizer implements UserAuthorizer {
       if (result.length == 0) {
         next(new ELCIELTSUnauthorizedError("User is unauthorized or user session is expired"));
       } else {
-        req.userData = result[0].data;
+        req.userData = {
+          userId: result[0].data["custom:userId"],
+          email: result[0].data.email,
+          cognitoName: result[0].data["cognito:username"],
+        };
         next();
       }
     } else {

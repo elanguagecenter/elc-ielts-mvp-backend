@@ -1,7 +1,10 @@
+import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 import ELCIELTSNotImplementedError from "../../exception/ELCIELTSNotImplementedError";
 import ITestRepository from "../../repository/test/ITestRepository";
 import PrismaTestRepository from "../../repository/test/PrismaTestRepository";
-import { CreateTest } from "../../types/test/IELTSTestTypes";
+import { TestModel } from "../../utils/types/dbtypes/models";
+import { CreateTest } from "../../utils/types/test/IELTSTestTypes";
+import CommonValidator from "../../utils/validators/CommonValidator";
 
 class TestService {
   private testRepository: ITestRepository;
@@ -9,19 +12,19 @@ class TestService {
     this.testRepository = testRepository;
   }
 
-  getTest(testId: string) {
-    // TODO - Get specific Test Logic
-    throw new ELCIELTSNotImplementedError("Requested functionality is under construction");
+  async getTest(testId: string): Promise<TestModel> {
+    CommonValidator.validateNotEmptyOrBlankString(testId, "Test ID");
+    return await this.testRepository.getById(testId);
   }
 
-  createTest(payload: CreateTest) {
-    // TODO - Create Test Logic
-    throw new ELCIELTSNotImplementedError("Requested functionality is under construction");
+  async createTest(userId: string, payload: CreateTest): Promise<TestModel> {
+    CommonValidator.validateNotEmptyOrBlankString(payload.name, "Test Name");
+    return await this.testRepository.create(userId, payload.name);
   }
 }
 
 const service = {
   prismaTest: new TestService(PrismaTestRepository.getInstance()),
 };
-
+export type ITestService = TestService;
 export default service;
