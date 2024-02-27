@@ -26,5 +26,5 @@ class TestService {
 const service = {
   prismaTest: new TestService(PrismaTestRepository.getInstance()),
 };
-
+export type ITestService = TestService;
 export default service;

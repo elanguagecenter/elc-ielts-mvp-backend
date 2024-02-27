@@ -14,9 +14,10 @@ class PrismaSpeakingTestRepository implements ISpeakingTestRepository {
   private constructor() {}
 
   @Handle
-  async create(testId: string): Promise<SpeakingTestModel> {
+  async create(testId: string, speakingTestname: string): Promise<SpeakingTestModel> {
     return await prisma.speaking_test.create({
       data: {
+        name: speakingTestname,
         current_status: TestStatus.SPEAKING_TEST_CREATED,
         test_id: testId,
       },
