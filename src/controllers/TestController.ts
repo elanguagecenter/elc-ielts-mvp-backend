@@ -12,11 +12,23 @@ class TestController {
     res.status(200).json(result);
   }
 
+  async getMultipleTests(req: Request, res: Response, next: NextFunction) {
+    const limit = req.query.limit;
+  }
+
   @AsyncControllerHandle
   async getSpecificTest(req: Request, res: Response, next: NextFunction) {
     const testId = req.params.testId;
     const result = await TestService.prismaTest.getTest(testId);
     res.status(200).json(result);
   }
+
+  @AsyncControllerHandle
+  async seachTestByNameForStudent(req: Request, res: Response, next: NextFunction) {
+    const testName: string | undefined = req.query.name?.toString();
+    const result = await TestService.prismaTest.seachTestByNameForStudent(req.userData.userId, testName);
+    res.status(200).json(result);
+  }
 }
+
 export default TestController;

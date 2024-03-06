@@ -19,9 +19,8 @@ class SpeakingTestService {
     this.testService = testService;
   }
 
-  async createSpeakingTest(testId: string, payload: CreateSpekingTest): Promise<SpeakingTestModel> {
+  async createSpeakingTest(testId: string): Promise<SpeakingTestModel> {
     CommonValidator.validateNotEmptyOrBlankString(testId, "Test ID");
-    // CommonValidator.validateNotEmptyOrBlankString(payload.name, "Test Name");
     const test: TestModel = await this.testService.getTest(testId);
     return await this.speakingTestRepository.create(testId, `${test.test_name} - speaking test`);
   }

@@ -16,12 +16,12 @@ export interface TestStatusModel {
 }
 
 export interface SpeakingTestModel {
-  speaking_test_id: String;
+  speaking_test_id: string;
   name: string;
-  current_status: String;
+  current_status: string;
   created_time: Date;
   last_modified_time: Date;
-  test_id: String;
+  test_id: string;
 }
 
 export interface SpeakingTestStatusModel {

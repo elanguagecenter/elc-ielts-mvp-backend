@@ -6,6 +6,7 @@ const testRoute = express.Router();
 const testController = new TestController();
 
 // routes begining /ielts/test
+testRoute.get("/search", CognitoAuthMiddleware, testController.seachTestByNameForStudent);
 testRoute.get("/:testId", CognitoAuthMiddleware, testController.getSpecificTest);
 testRoute.post("/", CognitoAuthMiddleware, testController.createNewTest);
 

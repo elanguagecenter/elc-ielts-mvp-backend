@@ -4,6 +4,7 @@ import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
 import { TestStatus } from "../../utils/types/common/common";
 import { TestModel } from "../../utils/types/dbtypes/models";
 import ITestRepository from "./ITestRepository";
+import { TestSeachResult } from "../../utils/types/common/types";
 
 class PrismaTestRepository implements ITestRepository {
   private static instance: PrismaTestRepository = new PrismaTestRepository();
@@ -46,6 +47,30 @@ class PrismaTestRepository implements ITestRepository {
       .catch(() => {
         throw new ELCIELTSNotFoundError(`Test not found for testId: ${testId}`);
       });
+  }
+
+  @Handle
+  async getAllWithLimit(limit: number): Promise<Array<TestModel>> {
+    return await prisma.test.findMany({
+      take: limit,
+    });
+  }
+
+  @Handle
+  async seachByTestNameAndUserId(name: string, userId: string): Promise<Array<TestSeachResult>> {
+    return await prisma.test.findMany({
+      where: {
+        student_id: userId,
+        test_name: {
+          contains: name.toLowerCase(),
+          mode: "insensitive",
+        },
+      },
+      select: {
+        test_id: true,
+        test_name: true,
+      },
+    });
   }
 }
 

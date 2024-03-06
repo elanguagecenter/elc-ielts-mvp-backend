@@ -12,8 +12,7 @@ class SpeakingTestController {
   @AsyncControllerHandle
   async createNewSpeakingTest(req: Request, res: Response) {
     const testId = req.params.testId;
-    const payLoad: CreateSpekingTest = req.body;
-    const result = await this.speakingTestService.createSpeakingTest(testId, payLoad);
+    const result = await this.speakingTestService.createSpeakingTest(testId);
     res.status(200).send(result);
   }
 
