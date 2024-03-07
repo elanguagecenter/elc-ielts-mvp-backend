@@ -1,6 +1,6 @@
 import SpeakingTestService, { ISpeakingTestService } from "../services/test/SpeakingTestService";
 import { Response, Request } from "express";
-import { CreateSpekingTest, CreateSpekingTestStage, UpdateSpeakingTestQuestion } from "../utils/types/test/IELTSTestTypes";
+import { UpdateSpeakingTestQuestion } from "../utils/types/test/IELTSTestTypes";
 import AsyncControllerHandle from "../utils/decorators/AsyncControllerErrorDecorator";
 
 class SpeakingTestController {
@@ -54,7 +54,7 @@ class SpeakingTestController {
     const stgNumber = req.params.stgNumber;
     const qid = req.params.qid;
     const payLoad: UpdateSpeakingTestQuestion = req.body;
-    const result = await this.speakingTestService.updateSpeakingQuestion(testId, stgNumber, qid, payLoad);
+    const result = await this.speakingTestService.updateSpeakingStageQuestion(testId, stgNumber, qid, payLoad);
     res.status(200).send(result);
   }
 }
