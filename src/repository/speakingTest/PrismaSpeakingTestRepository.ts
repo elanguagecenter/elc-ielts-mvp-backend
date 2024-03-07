@@ -45,7 +45,7 @@ class PrismaSpeakingTestRepository implements ISpeakingTestRepository {
         },
       })
       .catch(() => {
-        throw new ELCIELTSNotFoundError(`Speaking Test not found for testId: ${speakingTestId}`);
+        throw new ELCIELTSNotFoundError(`Speaking Test not found for speakingTestId: ${speakingTestId}`);
       });
   }
 }

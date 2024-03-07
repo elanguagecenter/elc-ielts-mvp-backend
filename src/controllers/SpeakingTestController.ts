@@ -1,6 +1,6 @@
 import SpeakingTestService, { ISpeakingTestService } from "../services/test/SpeakingTestService";
 import { Response, Request } from "express";
-import { CreateSpekingTest, CreateSpekingTestStage, UpdateSpeakingTestQuestion } from "../utils/types/test/IELTSTestTypes";
+import { UpdateSpeakingTestQuestion } from "../utils/types/test/IELTSTestTypes";
 import AsyncControllerHandle from "../utils/decorators/AsyncControllerErrorDecorator";
 
 class SpeakingTestController {
@@ -12,8 +12,7 @@ class SpeakingTestController {
   @AsyncControllerHandle
   async createNewSpeakingTest(req: Request, res: Response) {
     const testId = req.params.testId;
-    const payLoad: CreateSpekingTest = req.body;
-    const result = await this.speakingTestService.createSpeakingTest(testId, payLoad);
+    const result = await this.speakingTestService.createSpeakingTest(testId);
     res.status(200).send(result);
   }
 
@@ -28,7 +27,7 @@ class SpeakingTestController {
   async getSpecificExistingSpeakingStage(req: Request, res: Response) {
     const testId = req.params.testId;
     const stgNumber = req.params.stgNumber;
-    const result = await this.speakingTestService.getSpecificTestStage(testId, stgNumber);
+    const result = await this.speakingTestService.getSpecificSpeakingTestStage(testId, stgNumber);
     res.status(200).send(result);
   }
 
@@ -36,8 +35,7 @@ class SpeakingTestController {
   async createNewSpeakingStage(req: Request, res: Response) {
     const testId = req.params.testId;
     const stgNumber = req.params.stgNumber;
-    const payLoad: CreateSpekingTestStage = req.body;
-    const result = await this.speakingTestService.createSpeakingTestStage(testId, stgNumber, payLoad);
+    const result = await this.speakingTestService.createSpeakingTestStage(testId, stgNumber);
     res.status(200).send(result);
   }
 
@@ -56,7 +54,7 @@ class SpeakingTestController {
     const stgNumber = req.params.stgNumber;
     const qid = req.params.qid;
     const payLoad: UpdateSpeakingTestQuestion = req.body;
-    const result = await this.speakingTestService.updateSpeakingQuestion(testId, stgNumber, qid, payLoad);
+    const result = await this.speakingTestService.updateSpeakingStageQuestion(testId, stgNumber, qid, payLoad);
     res.status(200).send(result);
   }
 }

@@ -1,6 +1,7 @@
 import prisma from "../../config/DatabaseSource";
+import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
 import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
-import { TestPartStatus } from "../../utils/types/common/common";
+import { TestStageStatus } from "../../utils/types/common/common";
 import { SpeakingTestStageModel } from "../../utils/types/dbtypes/models";
 import ISpeakingTestStageRepository from "./ISpeakingTestStageRepository";
 
@@ -18,7 +19,7 @@ class PrismaSpeakingTestStageRepository implements ISpeakingTestStageRepository 
       data: {
         stg_number: stgNumber,
         generated_question: generatedQuestion,
-        status: TestPartStatus.CREATED,
+        status: TestStageStatus.CREATED,
         speaking_test_id: speakingTestId,
       },
     });
@@ -54,6 +55,20 @@ class PrismaSpeakingTestStageRepository implements ISpeakingTestStageRepository 
         speaking_test_id: speakingTestId,
       },
     });
+  }
+
+  @Handle
+  async getSpeakingTestStageByStageNumberAndSpeakingTestId(speakingTestId: string, stgNumber: number): Promise<SpeakingTestStageModel> {
+    return await prisma.speaking_test_stage
+      .findFirstOrThrow({
+        where: {
+          speaking_test_id: speakingTestId,
+          stg_number: stgNumber,
+        },
+      })
+      .catch(() => {
+        throw new ELCIELTSNotFoundError(`Speaking Test stage not found for speakingTestId: ${speakingTestId}`);
+      });
   }
 }
 
