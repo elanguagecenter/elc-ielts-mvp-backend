@@ -27,7 +27,7 @@ class SpeakingTestController {
   async getSpecificExistingSpeakingStage(req: Request, res: Response) {
     const testId = req.params.testId;
     const stgNumber = req.params.stgNumber;
-    const result = await this.speakingTestService.getSpecificTestStage(testId, stgNumber);
+    const result = await this.speakingTestService.getSpecificSpeakingTestStage(testId, stgNumber);
     res.status(200).send(result);
   }
 
@@ -35,8 +35,7 @@ class SpeakingTestController {
   async createNewSpeakingStage(req: Request, res: Response) {
     const testId = req.params.testId;
     const stgNumber = req.params.stgNumber;
-    const payLoad: CreateSpekingTestStage = req.body;
-    const result = await this.speakingTestService.createSpeakingTestStage(testId, stgNumber, payLoad);
+    const result = await this.speakingTestService.createSpeakingTestStage(testId, stgNumber);
     res.status(200).send(result);
   }
 

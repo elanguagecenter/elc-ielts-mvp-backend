@@ -11,7 +11,7 @@ export enum TestStatus {
   SPEAKING_TEST_PART_2_FAILED = "SPEAKING_TEST_PART_1_FAILED",
 }
 
-export enum TestPartStatus {
+export enum TestStageStatus {
   CREATED = "CREATED",
   STARTED = "STARTED",
   COMPLETED = "COMPLETED",
