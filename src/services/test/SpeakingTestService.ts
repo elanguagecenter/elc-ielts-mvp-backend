@@ -18,7 +18,7 @@ class SpeakingTestService {
   private speakingTestRepository: ISpeakingTestRepository;
   private speakingTestStageRepository: ISpeakingTestStageRepository;
   private testService: ITestService;
-  private testGenFunctionMap: Map<number, () => Promise<string>>;
+  private testGenFunctionMap: Map<number, (...val: Array<string>) => Promise<string>>;
   constructor(
     speakingTestRepository: ISpeakingTestRepository,
     speakingTestStageRepository: ISpeakingTestStageRepository,

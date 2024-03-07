@@ -41,8 +41,26 @@ class ChatGPTGeneratorService implements ITestGeneratorService {
       });
   }
 
-  generateSpeakingTestStage3(): Promise<string> {
-    throw new Error("Method not implemented.");
+  async generateSpeakingTestStage3(previousGeneratedText: string): Promise<string> {
+    return await this.openai.chat.completions
+      .create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "system", content: GptPrompts.PartTwoSpeakingQuestionGenerationPrompt(previousGeneratedText) }],
+        temperature: 0.39,
+        max_tokens: 2048,
+        top_p: 1,
+        presence_penalty: 0.5,
+        frequency_penalty: 0.5,
+      })
+      .then((completion) => {
+        if (completion.choices[0].message.content) {
+          return completion.choices[0].message.content;
+        }
+        throw new Error();
+      })
+      .catch(() => {
+        throw new ELCIELTSGPTError("Error happened in speaking part 1 generation");
+      });
   }
 }
 
