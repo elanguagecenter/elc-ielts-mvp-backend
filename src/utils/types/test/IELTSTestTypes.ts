@@ -13,3 +13,7 @@ export interface CreateSpekingTestStage {
 export interface UpdateSpeakingTestQuestion {
   operation: string;
 }
+
+export interface StartStopSpeakingTestStage {
+  stgNumber: string;
+}

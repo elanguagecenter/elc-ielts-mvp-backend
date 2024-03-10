@@ -37,7 +37,7 @@ class ChatGPTGeneratorService implements ITestGeneratorService {
         throw new Error();
       })
       .catch(() => {
-        throw new ELCIELTSGPTError("Error happened in speaking part 1 generation");
+        throw new ELCIELTSGPTError("Error happened in speaking stage 2 generation");
       });
   }
 
@@ -59,7 +59,7 @@ class ChatGPTGeneratorService implements ITestGeneratorService {
         throw new Error();
       })
       .catch(() => {
-        throw new ELCIELTSGPTError("Error happened in speaking part 1 generation");
+        throw new ELCIELTSGPTError("Error happened in speaking stage 3 generation");
       });
   }
 }
