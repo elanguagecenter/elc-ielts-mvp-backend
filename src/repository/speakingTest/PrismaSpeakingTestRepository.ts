@@ -25,6 +25,15 @@ class PrismaSpeakingTestRepository implements ISpeakingTestRepository {
   }
 
   @Handle
+  async getByTestId(testId: string): Promise<SpeakingTestModel | null> {
+    return await prisma.speaking_test.findUnique({
+      where: {
+        test_id: testId,
+      },
+    });
+  }
+
+  @Handle
   async updateStatusById(speakingTestId: string, status: string): Promise<SpeakingTestModel> {
     return await prisma.speaking_test.update({
       where: {
