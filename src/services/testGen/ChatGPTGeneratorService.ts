@@ -7,50 +7,33 @@ import ELCIELTSGPTError from "../../exception/ELCIELTSGPTError";
 
 class ChatGPTGeneratorService implements ITestGeneratorService {
   private openai: OpenAI;
-  private static instance: ITestGeneratorService = new ChatGPTGeneratorService();
+  private static instance: ChatGPTGeneratorService = new ChatGPTGeneratorService();
   private constructor() {
     this.openai = new OpenAI({
       apiKey: process.env.CHAT_GPT_APIKEY,
     });
   }
 
-  static getInstance(): ITestGeneratorService {
-    return this.instance;
+  static getInstance(): ChatGPTGeneratorService {
+    return ChatGPTGeneratorService.instance;
   }
 
   async generateSpeakingTestStage2(): Promise<string> {
     const context: string = OpenAIUtils.getRandomContextValue(Contexts.SpeakingTestPartOne);
-    return await this.openai.chat.completions
-      .create({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "system", content: GptPrompts.PartOneSpeakingQuestionGenerationPrompt(context) }],
-        temperature: 0.39,
-        max_tokens: 2048,
-        top_p: 1,
-        presence_penalty: 0.5,
-        frequency_penalty: 0.5,
-      })
-      .then((completion) => {
-        if (completion.choices[0].message.content) {
-          return completion.choices[0].message.content;
-        }
-        throw new Error();
-      })
-      .catch(() => {
-        throw new ELCIELTSGPTError("Error happened in speaking stage 2 generation");
-      });
+    const content: string = GptPrompts.PartOneSpeakingQuestionGenerationPrompt(context);
+    return await this.invokeOpenApi(content, "Speaking", 2);
   }
 
   async generateSpeakingTestStage3(previousGeneratedText: string): Promise<string> {
+    const content: string = GptPrompts.PartTwoSpeakingQuestionGenerationPrompt(previousGeneratedText);
+    return await this.invokeOpenApi(content, "Speaking", 3);
+  }
+
+  private async invokeOpenApi(content: string, testType: string, stage: number) {
     return await this.openai.chat.completions
       .create({
         model: "gpt-3.5-turbo",
-        messages: [{ role: "system", content: GptPrompts.PartTwoSpeakingQuestionGenerationPrompt(previousGeneratedText) }],
-        temperature: 0.39,
-        max_tokens: 2048,
-        top_p: 1,
-        presence_penalty: 0.5,
-        frequency_penalty: 0.5,
+        messages: [{ role: "system", content: content }],
       })
       .then((completion) => {
         if (completion.choices[0].message.content) {
@@ -59,7 +42,7 @@ class ChatGPTGeneratorService implements ITestGeneratorService {
         throw new Error();
       })
       .catch(() => {
-        throw new ELCIELTSGPTError("Error happened in speaking stage 3 generation");
+        throw new ELCIELTSGPTError(`Error happened in ${testType} stage ${stage} generation`);
       });
   }
 }

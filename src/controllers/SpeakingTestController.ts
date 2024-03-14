@@ -40,14 +40,6 @@ class SpeakingTestController {
   }
 
   @AsyncControllerHandle
-  async createNewSpeakingStage(req: Request, res: Response) {
-    const testId = req.params.testId;
-    const stgNumber = req.params.stgNumber;
-    const result = await this.speakingTestService.createSpeakingTestStage(testId, stgNumber);
-    res.status(200).send(result);
-  }
-
-  @AsyncControllerHandle
   async getSpecificSpeakingTestQuestion(req: Request, res: Response) {
     const testId = req.params.testId;
     const stgNumber = req.params.stgNumber;
