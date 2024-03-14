@@ -33,12 +33,12 @@ export interface SpeakingTestStatusModel {
 }
 
 export interface SpeakingTestStageModel {
-  speaking_test_stage_id: String;
+  speaking_test_stage_id: string;
   stg_number: number;
-  generated_question: String;
-  uploaded_media_url: String | null;
-  status: String | null;
+  generated_question: string;
+  uploaded_media_url: string | null;
+  status: string | null;
   created_time: Date;
   last_modified_time: Date;
-  speaking_test_id: String;
+  speaking_test_id: string;
 }

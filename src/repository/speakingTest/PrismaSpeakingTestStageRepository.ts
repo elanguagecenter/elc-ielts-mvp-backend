@@ -54,6 +54,9 @@ class PrismaSpeakingTestStageRepository implements ISpeakingTestStageRepository 
       where: {
         speaking_test_id: speakingTestId,
       },
+      orderBy: {
+        stg_number: "asc",
+      },
     });
   }
 

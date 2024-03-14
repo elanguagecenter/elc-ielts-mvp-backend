@@ -2,7 +2,7 @@ import ELCIELTSNotImplementedError from "../../exception/ELCIELTSNotImplementedE
 import ISpeakingTestRepository from "../../repository/speakingTest/ISpeakingTestRepository";
 import PrismaSpeakingTestRepository from "../../repository/speakingTest/PrismaSpeakingTestRepository";
 import { SpeakingTestModel, SpeakingTestStageModel, TestModel } from "../../utils/types/dbtypes/models";
-import { CreateSpekingTest, CreateSpekingTestStage, UpdateSpeakingTestQuestion } from "../../utils/types/test/IELTSTestTypes";
+import { UpdateSpeakingTestQuestion } from "../../utils/types/test/IELTSTestTypes";
 import CommonValidator from "../../utils/validators/CommonValidator";
 import { ITestService } from "./TestService";
 import TestService from "./TestService";
@@ -11,11 +11,10 @@ import PrismaSpeakingTestStageRepository from "../../repository/speakingTest/Pri
 import ITestGeneratorService from "../testGen/ITestGeneratorService";
 import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 import { TestStageStatus, TestStatus } from "../../utils/types/common/common";
-import FFMpegMediaRecorder from "../mediaRecorder/FFMpegMediaRecorder";
 import IMediaRecorder from "../mediaRecorder/IMediaRecorder";
 import { SpeakingTestResponse, SpeakingTestStageStartResponse } from "../../utils/types/common/types";
-import DummyTestGeneratorService from "../testGen/DummyTestGeneratorService";
 import FSMediaRecorder from "../mediaRecorder/FSMediaRecorder";
+import ChatGPTGeneratorService from "../testGen/ChatGPTGeneratorService";
 
 class SpeakingTestService {
   private speakingTestRepository: ISpeakingTestRepository;
@@ -34,8 +33,8 @@ class SpeakingTestService {
     this.speakingTestStageRepository = speakingTestStageRepository;
     this.testService = testService;
     this.testGenFunctionMap = new Map([
-      [2, testGenService.generateSpeakingTestStage2],
-      [3, testGenService.generateSpeakingTestStage3],
+      [2, () => testGenService.generateSpeakingTestStage2()],
+      [3, (prevGenText: string) => testGenService.generateSpeakingTestStage3(prevGenText)],
     ]);
     this.mediaRecorder = mediaRecorder;
   }
@@ -45,15 +44,15 @@ class SpeakingTestService {
     const test: TestModel = await this.testService.getTest(testId);
     const speakingTest: SpeakingTestModel = await this.speakingTestRepository.create(testId, `${test.test_name} - speaking test`);
 
-    const speakingTestStages: Array<SpeakingTestStageModel> = await Promise.all(
-      ["2", "3"].map(async (value) => await this.createSpeakingTestStage(speakingTest.speaking_test_id, value))
-    );
+    const speakingTestStage1: SpeakingTestStageModel = await this.createSpeakingTestStageTwo(speakingTest.speaking_test_id);
+    const speakingTestStage2: SpeakingTestStageModel = await this.createSpeakingTestStageThree(speakingTest.speaking_test_id, speakingTestStage1.generated_question);
+
     const updatedSpeakingTest: SpeakingTestModel = await this.speakingTestRepository.updateStatusById(speakingTest.speaking_test_id, TestStatus.SPEAKING_TEST_CREATED);
     const updatedTest: TestModel = await this.testService.updateStatusByTestId(testId, TestStatus.SPEAKING_TEST_CREATED);
     return {
       test: updatedTest,
       speakingTest: updatedSpeakingTest,
-      speakingTestStages: speakingTestStages,
+      speakingTestStages: [speakingTestStage1, speakingTestStage2],
     };
   }
 
@@ -68,17 +67,26 @@ class SpeakingTestService {
     };
   }
 
-  async createSpeakingTestStage(speakingTestId: string, stgNumber: string): Promise<SpeakingTestStageModel> {
+  async createSpeakingTestStageTwo(speakingTestId: string): Promise<SpeakingTestStageModel> {
     CommonValidator.validateNotEmptyOrBlankString(speakingTestId, "Speaking Test ID");
-    const stgNumberValue = CommonValidator.validatePositiveNumberString(stgNumber, "stageNumber");
-    CommonValidator.validateValidPossibleNumberValue(stgNumberValue, [2, 3], "stageNumber");
-    const generateSpeakingTestPart = this.testGenFunctionMap.get(stgNumberValue);
+    const generateSpeakingTestPart = this.testGenFunctionMap.get(2);
     if (generateSpeakingTestPart) {
       const question = await generateSpeakingTestPart();
-      return await this.speakingTestStageRepository.create(speakingTestId, question, stgNumberValue);
+      return await this.speakingTestStageRepository.create(speakingTestId, question, 2);
     }
 
-    throw new ELCIELTSInternalError(`Exception occured when generating speaking part ${stgNumberValue} question`);
+    throw new ELCIELTSInternalError(`Exception occured when generating speaking part ${2} question`);
+  }
+
+  async createSpeakingTestStageThree(speakingTestId: string, prevText: string): Promise<SpeakingTestStageModel> {
+    CommonValidator.validateNotEmptyOrBlankString(speakingTestId, "Speaking Test ID");
+    const generateSpeakingTestPart = this.testGenFunctionMap.get(3);
+    if (generateSpeakingTestPart) {
+      const question = await generateSpeakingTestPart(prevText);
+      return await this.speakingTestStageRepository.create(speakingTestId, question, 3);
+    }
+
+    throw new ELCIELTSInternalError(`Exception occured when generating speaking part ${3} question`);
   }
 
   async getAllSpeakingTestStages(speakingTestId: string): Promise<Array<SpeakingTestStageModel>> {
@@ -107,7 +115,7 @@ class SpeakingTestService {
 
     this.mediaRecorder.startRecording(userId, `${userId}-${speakingTestStageId}.wav`);
 
-    return this.updateSpeakingTestStageStatus(testId, speakingTestId, speakingTestStageId, stgNumberValue);
+    return this.updateSpeakingTestStageStatus(testId, speakingTestId, speakingTestStageId, stgNumberValue, TestStageStatus.STARTED);
   }
 
   async stopSpeakingTestStageRecording(
@@ -124,14 +132,17 @@ class SpeakingTestService {
     const stgNumberValue = this.validateSpeakingTestStagingNumber(stgNumber);
 
     this.mediaRecorder.stopRecording(userId);
-    return this.updateSpeakingTestStageStatus(testId, speakingTestId, speakingTestStageId, stgNumberValue);
+    return this.updateSpeakingTestStageStatus(testId, speakingTestId, speakingTestStageId, stgNumberValue, TestStageStatus.COMPLETED);
   }
 
-  private async updateSpeakingTestStageStatus(testId: string, speakingTestId: string, speakingTestStageId: string, stgNumber: number): Promise<SpeakingTestStageStartResponse> {
-    const updatedSpeakingTestStage: SpeakingTestStageModel = await this.speakingTestStageRepository.updateStatusBySpeakingTestStageId(
-      speakingTestStageId,
-      TestStageStatus.COMPLETED
-    );
+  private async updateSpeakingTestStageStatus(
+    testId: string,
+    speakingTestId: string,
+    speakingTestStageId: string,
+    stgNumber: number,
+    status: string
+  ): Promise<SpeakingTestStageStartResponse> {
+    const updatedSpeakingTestStage: SpeakingTestStageModel = await this.speakingTestStageRepository.updateStatusBySpeakingTestStageId(speakingTestStageId, status);
     const updatedSpeakingTest: SpeakingTestModel = await this.speakingTestRepository.updateStatusById(
       speakingTestId,
       stgNumber == 2 ? TestStatus.SPEAKING_TEST_PART_2_STARTED : TestStatus.SPEAKING_TEST_PART_3_STARTED
@@ -168,9 +179,7 @@ const service = {
     PrismaSpeakingTestRepository.getInstance(),
     PrismaSpeakingTestStageRepository.getInstance(),
     TestService.prismaTest,
-    DummyTestGeneratorService.getInstance(),
-    //ChatGPTGeneratorService.getInstance(),
-    //FFMpegMediaRecorder.getInstance()
+    ChatGPTGeneratorService.getInstance(),
     FSMediaRecorder.getInstance()
   ),
 };

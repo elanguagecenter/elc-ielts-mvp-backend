@@ -9,7 +9,6 @@ const speakingTestController: SpeakingTestController = new SpeakingTestControlle
 speakingTestRoute.post("/", CognitoAuthMiddleware, speakingTestController.createNewSpeakingTest);
 speakingTestRoute.get("/", CognitoAuthMiddleware, speakingTestController.getSpeakingTestByTestId);
 speakingTestRoute.get("/stages", CognitoAuthMiddleware, speakingTestController.getExistingSpeakingStages);
-speakingTestRoute.post("/stages/:stgNumber", CognitoAuthMiddleware, speakingTestController.createNewSpeakingStage);
 speakingTestRoute.get("/stages/:stgNumber", CognitoAuthMiddleware, speakingTestController.getSpecificExistingSpeakingStage);
 speakingTestRoute.get("/stages/:stgNumber/question/:qid", CognitoAuthMiddleware, speakingTestController.getSpecificSpeakingTestQuestion);
 speakingTestRoute.put("/stages/:stgNumber/question/:qid", CognitoAuthMiddleware, speakingTestController.updateSpeakingTestQuestion);
