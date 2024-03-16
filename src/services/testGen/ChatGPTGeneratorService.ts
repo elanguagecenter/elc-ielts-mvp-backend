@@ -20,6 +20,7 @@ class ChatGPTGeneratorService implements ITestGeneratorService {
 
   async generateSpeakingTestStage2(): Promise<string> {
     const context: string = OpenAIUtils.getRandomContextValue(Contexts.SpeakingTestPartOne);
+    console.log(`Context to br generated: ${context}`);
     const content: string = GptPrompts.PartOneSpeakingQuestionGenerationPrompt(context);
     return await this.invokeOpenApi(content, "Speaking", 2);
   }

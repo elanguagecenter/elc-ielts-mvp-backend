@@ -1,7 +1,7 @@
 import ELCIELTSDataInvalidError from "../../exception/ELCIELTSDataInvalidError";
 
 const validateNotNull = <T>(param: T | undefined, paramName: string) => {
-  if (param == null || param == undefined) {
+  if (param === null || param === undefined || param === "undefined") {
     throw new ELCIELTSDataInvalidError(`${paramName} value should not be null or undefined`);
   }
 };

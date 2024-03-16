@@ -19,8 +19,6 @@ class FSMediaRecorder implements IMediaRecorder {
   }
 
   startRecording(userId: string, outputFile: string): void {
-    console.log("map");
-    console.log(this.socketMap);
     const socket: Socket | undefined = this.socketMap.get(userId);
     if (socket) {
       const writeStream: fs.WriteStream = fs.createWriteStream(`${configs.mediaOutBasepath}/${outputFile}`, { flags: "a" });

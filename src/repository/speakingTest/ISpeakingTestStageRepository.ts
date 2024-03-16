@@ -1,11 +1,11 @@
 import { SpeakingTestStageModel } from "../../utils/types/dbtypes/models";
 
-interface ISpeakingTestStageRepository {
-  create(speakingTestId: string, generatedQuestion: string, partNumber: number): Promise<SpeakingTestStageModel>;
-  updateStatusBySpeakingTestStageId(speakingTestPartId: string, status: string): Promise<SpeakingTestStageModel>;
-  updateMediaUrlBySpeakingTestId(speakingTestId: string, mediaUrl: string): Promise<SpeakingTestStageModel>;
-  getAllBySpeakingTestId(speakingTestId: string): Promise<Array<SpeakingTestStageModel>>;
-  getSpeakingTestStageByStageNumberAndSpeakingTestId(speakingTestId: string, stgNumber: number): Promise<SpeakingTestStageModel>;
+interface ISpeakingTestStageRepository<T> {
+  create(speakingTestId: string, generatedQuestion: string, partNumber: number): Promise<T>;
+  updateStatusBySpeakingTestStageId(speakingTestPartId: string, status: string): Promise<T>;
+  updateMediaUrlBySpeakingTestStageId(speakingTestId: string, mediaUrl: string): Promise<T>;
+  getAllBySpeakingTestId(speakingTestId: string): Promise<Array<T>>;
+  getSpeakingTestStageByStageNumberAndSpeakingTestId(speakingTestId: string, stgNumber: number): Promise<T>;
 }
 
 export default ISpeakingTestStageRepository;

@@ -21,7 +21,15 @@ export interface SpeakingTestModel {
   current_status: string;
   created_time: Date;
   last_modified_time: Date;
-  test_id: string;
+}
+
+export interface PracticeSpeakingTestModel {
+  practice_speaking_test_id: string;
+  current_status: string;
+  created_time: Date;
+  last_modified_time: Date;
+  student_id: string;
+  practice_speaking_test_stages?: Array<PracticeSpeakingTestStageModel>;
 }
 
 export interface SpeakingTestStatusModel {
@@ -33,12 +41,15 @@ export interface SpeakingTestStatusModel {
 }
 
 export interface SpeakingTestStageModel {
-  speaking_test_stage_id: string;
   stg_number: number;
   generated_question: string;
   uploaded_media_url: string | null;
   status: string | null;
   created_time: Date;
   last_modified_time: Date;
-  speaking_test_id: string;
+}
+
+export interface PracticeSpeakingTestStageModel extends SpeakingTestStageModel {
+  practice_speaking_test_stage_id: string;
+  practice_speaking_test_id: string;
 }

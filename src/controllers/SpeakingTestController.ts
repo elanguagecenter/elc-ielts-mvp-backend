@@ -1,33 +1,62 @@
-import SpeakingTestService, { ISpeakingTestService } from "../services/test/SpeakingTestService";
 import { Response, Request, NextFunction } from "express";
-import { StartStopSpeakingTestStage, UpdateSpeakingTestQuestion } from "../utils/types/test/IELTSTestTypes";
+import { StartStopSpeakingTestStage } from "../utils/types/test/IELTSTestTypes";
 import AsyncControllerHandle from "../utils/decorators/AsyncControllerErrorDecorator";
+import { Constants } from "../utils/types/common/constants";
+import PrismaPracticeSpeakingTestRepository from "../repository/speakingTest/practice/PrismaPracticeSpeakingTestRepository";
+import PrismaPraticeSpeakingTestStageRepository from "../repository/speakingTest/practice/PrismaPraticeSpeakingTestStageRepository";
+import ChatGPTGeneratorService from "../services/testGen/ChatGPTGeneratorService";
+import FSMediaRecorder from "../services/mediaRecorder/FSMediaRecorder";
+import PracticeSpeakingTestService from "../services/test/speaking/PracticeSpeakingTestService";
+import MockSpeakingTestService from "../services/test/speaking/MockSpeakingTestService";
+import TestService from "../services/test/TestService";
+import ISpeakingTestService from "../services/test/speaking/ISpeakingTestService";
 
 class SpeakingTestController {
-  private speakingTestService: ISpeakingTestService;
+  private speakingTestServiceMap: Map<string, ISpeakingTestService>;
+  private practiceSpeakingTestService: ISpeakingTestService;
+  private mockSpeakingTestService: ISpeakingTestService;
+
   constructor() {
-    this.speakingTestService = SpeakingTestService.prismaSpeakingTest;
+    this.practiceSpeakingTestService = new PracticeSpeakingTestService(
+      PrismaPracticeSpeakingTestRepository.getInstance(),
+      PrismaPraticeSpeakingTestStageRepository.getInstance(),
+      ChatGPTGeneratorService.getInstance(),
+      FSMediaRecorder.getInstance()
+    );
+    this.mockSpeakingTestService = new MockSpeakingTestService(
+      PrismaPracticeSpeakingTestRepository.getInstance(),
+      PrismaPraticeSpeakingTestStageRepository.getInstance(),
+      TestService.prismaTest,
+      ChatGPTGeneratorService.getInstance(),
+      FSMediaRecorder.getInstance()
+    );
+    this.speakingTestServiceMap = new Map([[Constants.PRACTICE_ROUTE, this.practiceSpeakingTestService]]);
   }
 
   @AsyncControllerHandle
   async createNewSpeakingTest(req: Request, res: Response, next: NextFunction) {
     const testId = req.params.testId;
-    const result = await SpeakingTestService.prismaSpeakingTest.createSpeakingTest(testId);
-
+    const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
+    const result = await spekaingTestService.createSpeakingTest(testId == Constants.PRACTICE_ROUTE ? req.userData.userId : testId);
     res.status(200).send(result);
   }
 
   @AsyncControllerHandle
-  async getSpeakingTestByTestId(req: Request, res: Response, next: NextFunction) {
+  async getAllSpeakingTestsByTestIdOrUserId(req: Request, res: Response, next: NextFunction) {
     const testId = req.params.testId;
-    const result = await SpeakingTestService.prismaSpeakingTest.getSpeakingTestByTestId(testId);
+    const limit = req.query.limit?.toString() || Constants.DEFAULT_PAGE_LIMIT;
+    const page = req.query.page?.toString() || Constants.DEAULT_PAGE_NUM;
+    const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
+    const result = await spekaingTestService.getAllSpeakingTestsByReleventId(testId == Constants.PRACTICE_ROUTE ? req.userData.userId : testId, page, limit);
     res.status(200).send(result);
   }
 
   @AsyncControllerHandle
-  async getExistingSpeakingStages(req: Request, res: Response) {
+  async getExistingSpeakingStagesForSpeakingTestId(req: Request, res: Response) {
+    const speakingTestId = req.params.speakingTestId;
     const testId = req.params.testId;
-    const result = await this.speakingTestService.getAllSpeakingTestStages(testId);
+    const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
+    const result = await spekaingTestService.getAllSpeakingTestStages(speakingTestId);
     res.status(200).send(result);
   }
 
@@ -35,26 +64,9 @@ class SpeakingTestController {
   async getSpecificExistingSpeakingStage(req: Request, res: Response) {
     const testId = req.params.testId;
     const stgNumber = req.params.stgNumber;
-    const result = await this.speakingTestService.getSpecificSpeakingTestStage(testId, stgNumber);
-    res.status(200).send(result);
-  }
-
-  @AsyncControllerHandle
-  async getSpecificSpeakingTestQuestion(req: Request, res: Response) {
-    const testId = req.params.testId;
-    const stgNumber = req.params.stgNumber;
-    const qid = req.params.qid;
-    const result = await this.speakingTestService.getSpeakingQuestion(testId, stgNumber, qid);
-    res.status(200).send(result);
-  }
-
-  @AsyncControllerHandle
-  async updateSpeakingTestQuestion(req: Request, res: Response) {
-    const testId = req.params.testId;
-    const stgNumber = req.params.stgNumber;
-    const qid = req.params.qid;
-    const payLoad: UpdateSpeakingTestQuestion = req.body;
-    const result = await this.speakingTestService.updateSpeakingStageQuestion(testId, stgNumber, qid, payLoad);
+    const speakingTestId = req.params.speakingTestId;
+    const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
+    const result = await spekaingTestService.getSpecificSpeakingTestStage(speakingTestId, stgNumber);
     res.status(200).send(result);
   }
 
@@ -64,13 +76,9 @@ class SpeakingTestController {
     const speakingTestId = req.params.speakingTestId;
     const speakingTestStageId = req.params.stageId;
     const payLoad: StartStopSpeakingTestStage = req.body;
-    const result = await SpeakingTestService.prismaSpeakingTest.startSpeakingTestStageRecording(
-      testId,
-      speakingTestId,
-      speakingTestStageId,
-      payLoad.stgNumber,
-      req.userData.userId
-    );
+
+    const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
+    const result = await spekaingTestService.startSpeakingTestStageRecording(speakingTestId, speakingTestStageId, payLoad.stgNumber, req.userData.userId);
     res.status(200).send(result);
   }
 
@@ -80,7 +88,9 @@ class SpeakingTestController {
     const speakingTestId = req.params.speakingTestId;
     const speakingTestStageId = req.params.stageId;
     const payLoad: StartStopSpeakingTestStage = req.body;
-    const result = await SpeakingTestService.prismaSpeakingTest.stopSpeakingTestStageRecording(testId, speakingTestId, speakingTestStageId, payLoad.stgNumber, req.userData.userId);
+
+    const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
+    const result = await spekaingTestService.stopSpeakingTestStageRecording(speakingTestId, speakingTestStageId, payLoad.stgNumber, req.userData.userId);
     res.status(200).send(result);
   }
 }

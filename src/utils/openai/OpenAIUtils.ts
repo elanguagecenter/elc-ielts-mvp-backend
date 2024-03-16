@@ -3,7 +3,7 @@ const getRandomNumber = (min: number, max: number): number => {
 };
 
 const getRandomContextValue = (contextArray: Array<string>): string => {
-  return contextArray[getRandomNumber(0, contextArray.length)];
+  return contextArray[Math.floor(getRandomNumber(0, contextArray.length))];
 };
 
 export default {
