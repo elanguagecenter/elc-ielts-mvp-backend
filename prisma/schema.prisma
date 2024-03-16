@@ -39,14 +39,15 @@ model admin {
 }
 
 model student {
-  student_id            String       @id @default(uuid())
-  student_email         String       @db.VarChar(50)
-  student_mobile_number String       @db.VarChar(15)
-  created_time          DateTime     @default(now())
-  last_modified_time    DateTime     @updatedAt
-  org                   organization @relation(fields: [org_id], references: [org_id])
-  org_id                String
-  tests                 test[]
+  student_id              String                   @id @default(uuid())
+  student_email           String                   @db.VarChar(50)
+  student_mobile_number   String                   @db.VarChar(15)
+  created_time            DateTime                 @default(now())
+  last_modified_time      DateTime                 @updatedAt
+  org                     organization             @relation(fields: [org_id], references: [org_id])
+  org_id                  String
+  tests                   test[]
+  practice_speaking_tests practice_speaking_test[]
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//
@@ -137,6 +138,45 @@ model speaking_test_stage {
   last_modified_time     DateTime      @updatedAt
   speaking_test          speaking_test @relation(fields: [speaking_test_id], references: [speaking_test_id])
   speaking_test_id       String
+}
+
+//* -------------------------------------------------------------------------------------------------------- *//
+
+//* -------------------------------------------------------------------------------------------------------- *//
+//* Practice Speaking Test Related Models *//
+//* -------------------------------------------------------------------------------------------------------- *//
+
+model practice_speaking_test {
+  practice_speaking_test_id       String                          @id @default(uuid())
+  index                           Int                             @default(autoincrement())
+  current_status                  String                          @db.VarChar(50)
+  created_time                    DateTime                        @default(now())
+  last_modified_time              DateTime                        @updatedAt
+  practice_speaking_test_statuses practice_speaking_test_status[]
+  practice_speaking_test_stages   practice_speaking_test_stage[]
+  student                         student                         @relation(fields: [student_id], references: [student_id])
+  student_id                      String
+}
+
+model practice_speaking_test_status {
+  practice_speaking_test_status_id String                 @id @default(uuid())
+  status                           String                 @db.VarChar(50)
+  created_time                     DateTime               @default(now())
+  last_modified_time               DateTime               @updatedAt
+  practice_speaking_test           practice_speaking_test @relation(fields: [practice_speaking_test_id], references: [practice_speaking_test_id])
+  practice_speaking_test_id        String
+}
+
+model practice_speaking_test_stage {
+  practice_speaking_test_stage_id String                 @id @default(uuid())
+  stg_number                      Int
+  generated_question              String
+  uploaded_media_url              String?
+  status                          String                 @db.VarChar(50)
+  created_time                    DateTime               @default(now())
+  last_modified_time              DateTime               @updatedAt
+  practice_speaking_test          practice_speaking_test @relation(fields: [practice_speaking_test_id], references: [practice_speaking_test_id])
+  practice_speaking_test_id       String
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//

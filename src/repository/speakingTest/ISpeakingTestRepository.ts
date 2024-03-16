@@ -1,10 +1,7 @@
-import { SpeakingTestModel } from "../../utils/types/dbtypes/models";
-
-interface ISpeakingTestRepository {
-  create(testId: string, speakingTestname: string): Promise<SpeakingTestModel>;
-  updateStatusById(speakingTestId: string, status: string): Promise<SpeakingTestModel>;
-  getById(speakingTestId: string): Promise<SpeakingTestModel>;
-  getByTestId(testId: string): Promise<SpeakingTestModel | null>;
+interface ISpeakingTestRepository<T> {
+  create(id: string, speakingTestname: string): Promise<T>;
+  updateStatusById(speakingTestId: string, status: string): Promise<T>;
+  getById(speakingTestId: string): Promise<T>;
 }
 
 export default ISpeakingTestRepository;

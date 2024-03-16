@@ -1,12 +1,13 @@
-import prisma from "../../config/DatabaseSource";
-import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
-import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
-import { TestStatus } from "../../utils/types/common/common";
-import { SpeakingTestModel } from "../../utils/types/dbtypes/models";
-import ISpeakingTestRepository from "./ISpeakingTestRepository";
+import prisma from "../../../config/DatabaseSource";
+import Handle from "../../../utils/decorators/DBErrorHandlingDecorator";
+import ELCIELTSNotFoundError from "../../../exception/ELCIELTSNotFoundError";
+import { TestStatus } from "../../../utils/types/common/common";
+import { SpeakingTestModel } from "../../../utils/types/dbtypes/models";
+import ISpeakingTestRepository from "../ISpeakingTestRepository";
+import IMockTestSpeakingTestRepository from "./IMockTestSpeakingTestRepository";
 
-class PrismaSpeakingTestRepository implements ISpeakingTestRepository {
-  private static instance: PrismaSpeakingTestRepository = new PrismaSpeakingTestRepository();
+class PrismaMockSpeakingTestRepository implements IMockTestSpeakingTestRepository {
+  private static instance: PrismaMockSpeakingTestRepository = new PrismaMockSpeakingTestRepository();
 
   static getInstance() {
     return this.instance;
@@ -59,4 +60,4 @@ class PrismaSpeakingTestRepository implements ISpeakingTestRepository {
   }
 }
 
-export default PrismaSpeakingTestRepository;
+export default PrismaMockSpeakingTestRepository;

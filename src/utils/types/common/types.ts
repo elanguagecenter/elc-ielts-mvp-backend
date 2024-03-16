@@ -1,4 +1,4 @@
-import { SpeakingTestModel, SpeakingTestStageModel, TestModel } from "../dbtypes/models";
+import { PracticeSpeakingTestModel, SpeakingTestModel, SpeakingTestStageModel, TestModel } from "../dbtypes/models";
 
 export interface UserData {
   userId: string;
@@ -17,8 +17,18 @@ export interface SpeakingTestResponse {
   speakingTestStages: Array<SpeakingTestStageModel>;
 }
 
+export interface PracticeSpeakingTestResponse {
+  speakingTest: PracticeSpeakingTestModel | null;
+  speakingTestStages: Array<SpeakingTestStageModel>;
+}
+
 export interface SpeakingTestStageStartResponse {
   test: TestModel;
   speakingTest: SpeakingTestModel;
+  updatedSpeakingTestStage: SpeakingTestStageModel;
+}
+
+export interface PracticeSpeakingTestStageStartResponse {
+  speakingTest: PracticeSpeakingTestModel;
   updatedSpeakingTestStage: SpeakingTestStageModel;
 }

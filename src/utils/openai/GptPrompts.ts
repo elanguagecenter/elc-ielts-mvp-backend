@@ -7,7 +7,7 @@ const GptPrompts = {
 
       "${previousQuestion}"
 
-      Generate some questions for speaking test part 3. give me the result without any additional headings and in bullet points only
+      Generate some maximum five questions for speaking test part 3. give me the result without any additional headings and in bullet points only
     `;
   },
 };

@@ -1,11 +1,11 @@
-import prisma from "../../config/DatabaseSource";
-import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
-import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
-import { TestStageStatus } from "../../utils/types/common/common";
-import { SpeakingTestStageModel } from "../../utils/types/dbtypes/models";
-import ISpeakingTestStageRepository from "./ISpeakingTestStageRepository";
+import prisma from "../../../config/DatabaseSource";
+import ELCIELTSNotFoundError from "../../../exception/ELCIELTSNotFoundError";
+import Handle from "../../../utils/decorators/DBErrorHandlingDecorator";
+import { TestStageStatus } from "../../../utils/types/common/common";
+import { SpeakingTestStageModel } from "../../../utils/types/dbtypes/models";
+import ISpeakingTestStageRepository from "../ISpeakingTestStageRepository";
 
-class PrismaSpeakingTestStageRepository implements ISpeakingTestStageRepository {
+class PrismaSpeakingTestStageRepository implements ISpeakingTestStageRepository<SpeakingTestStageModel> {
   private static instance: PrismaSpeakingTestStageRepository = new PrismaSpeakingTestStageRepository();
 
   static getInstance(): PrismaSpeakingTestStageRepository {
@@ -37,7 +37,7 @@ class PrismaSpeakingTestStageRepository implements ISpeakingTestStageRepository 
   }
 
   @Handle
-  async updateMediaUrlBySpeakingTestId(speakingTestStageId: string, mediaUrl: string): Promise<SpeakingTestStageModel> {
+  async updateMediaUrlBySpeakingTestStageId(speakingTestStageId: string, mediaUrl: string): Promise<SpeakingTestStageModel> {
     return await prisma.speaking_test_stage.update({
       where: {
         speaking_test_stage_id: speakingTestStageId,
