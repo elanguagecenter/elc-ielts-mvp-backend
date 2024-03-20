@@ -1,6 +1,6 @@
 import { PracticeSpeakingTestModel, SpeakingTestStageModel } from "../../../utils/types/dbtypes/models";
 import CommonValidator from "../../../utils/validators/CommonValidator";
-import ITestGeneratorService from "../../testGen/ITestGeneratorService";
+import ITestGeneratorService from "../../testGen/ITextGeneratorService";
 import ELCIELTSInternalError from "../../../exception/ELCIELTSInternalError";
 import { TestStageStatus, TestStatus } from "../../../utils/types/common/common";
 import IMediaRecorder from "../../mediaRecorder/IMediaRecorder";

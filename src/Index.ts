@@ -8,6 +8,7 @@ import YAML from "yamljs";
 import testRoute from "./routes/TestRoute";
 import speakingTestRoute from "./routes/SpeakingTestRoute";
 import MediaSockServer from "./MediaSockServer";
+import writingTestRoute from "./routes/WritingTestRoute";
 
 const app: Express = express();
 const mediaSockServer: MediaSockServer = MediaSockServer.getInstance();
@@ -23,6 +24,7 @@ app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Buisness logic routes
 app.use("/healthcheck", healthCheckRouter);
 app.use("/ielts/test/:testId/speaking", speakingTestRoute);
+app.use("/ielts/test/:testId/writing", writingTestRoute);
 app.use("/ielts/test", testRoute);
 
 /* Global middlewares

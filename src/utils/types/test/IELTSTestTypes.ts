@@ -17,3 +17,7 @@ export interface UpdateSpeakingTestQuestion {
 export interface StartStopSpeakingTestStage {
   stgNumber: string;
 }
+
+export interface UpdateWritingTestStage {
+  answer: string;
+}
