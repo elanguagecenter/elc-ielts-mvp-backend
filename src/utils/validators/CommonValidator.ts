@@ -42,6 +42,19 @@ const validateDefinedStatus = (status: string, paramName: string, allowedStatuse
   }
 };
 
+const validateParamInADefinedValues = (param: string, definedValues: Array<string>, paramName: string) => {
+  validateNotEmptyOrBlankString(param, paramName);
+  if (!definedValues.includes(param)) {
+    throw new ELCIELTSDataInvalidError(`${paramName} should be a value from [${definedValues.toString()}]`);
+  }
+};
+
+const validateTrueValue = (value: boolean, error: string) => {
+  if (!value) {
+    throw new ELCIELTSDataInvalidError(error);
+  }
+};
+
 export default {
   validateNotNull: validateNotNull,
   validateNotEmptyOrBlankString: validateNotEmptyOrBlankString,
@@ -49,4 +62,6 @@ export default {
   validatePositiveNumberString: validatePositiveNumberString,
   validateValidPossibleNumberValue: validateValidPossibleNumberValue,
   validateDefinedStatus: validateDefinedStatus,
+  validateParamInADefinedValues: validateParamInADefinedValues,
+  validateTrueValue: validateTrueValue,
 };
