@@ -45,3 +45,8 @@ export enum QuestionStatus {
 export enum WritingTestOperation {
   EVALUATE = "evaluate",
 }
+
+export enum SpeakingTestOperation {
+  START = "start",
+  STOP = "stop",
+}

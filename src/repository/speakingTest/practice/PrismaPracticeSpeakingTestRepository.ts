@@ -56,13 +56,6 @@ class PrismaPracticeSpeakingTestRepository implements IPracticeSpeakingTestRepos
       },
       skip: skip,
       take: limit,
-      include: {
-        practice_speaking_test_stages: {
-          orderBy: {
-            stg_number: "asc",
-          },
-        },
-      },
       orderBy: {
         last_modified_time: "desc",
       },

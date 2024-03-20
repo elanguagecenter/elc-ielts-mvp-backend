@@ -73,6 +73,31 @@ class PrismaPraticeSpeakingTestStageRepository implements IPracticeSpeakingTestS
         throw new ELCIELTSNotFoundError(`Speaking Test stage not found for speakingTestId: ${speakingTestId}`);
       });
   }
+
+  @Handle
+  async getByStatusesAndId(speakingTestId: string, statuses: Array<string>): Promise<Array<PracticeSpeakingTestStageModel>> {
+    return await prisma.practice_speaking_test_stage.findMany({
+      where: {
+        practice_speaking_test_id: speakingTestId,
+        status: {
+          in: statuses,
+        },
+      },
+      orderBy: {
+        stg_number: "asc",
+      },
+    });
+  }
+
+  @Handle
+  async getByStageAndId(speakingTestId: string, stage: number): Promise<PracticeSpeakingTestStageModel | null> {
+    return await prisma.practice_speaking_test_stage.findFirst({
+      where: {
+        practice_speaking_test_id: speakingTestId,
+        stg_number: stage,
+      },
+    });
+  }
 }
 
 export default PrismaPraticeSpeakingTestStageRepository;

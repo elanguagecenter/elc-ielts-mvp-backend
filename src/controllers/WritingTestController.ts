@@ -61,7 +61,7 @@ class WritingTestController {
     const testId = req.params.testId;
     const writingTestId = req.params.writingTestId;
     const writingTestService: IWritingTestService = this.writingTestServiceMap.get(testId) || this.practiceWritingTestService;
-    const result: PracticeWritingTestStageModel = await writingTestService.getNextAvailableWritingTestStages(writingTestId);
+    const result: Array<PracticeWritingTestStageModel> = await writingTestService.getNextAvailableWritingTestStages(writingTestId);
     res.status(200).send(result);
   }
 }

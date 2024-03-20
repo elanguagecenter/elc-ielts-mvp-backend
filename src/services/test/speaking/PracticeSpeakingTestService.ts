@@ -1,14 +1,15 @@
-import { PracticeSpeakingTestModel, SpeakingTestStageModel } from "../../../utils/types/dbtypes/models";
+import { PracticeSpeakingTestModel, PracticeSpeakingTestStageModel, SpeakingTestStageModel } from "../../../utils/types/dbtypes/models";
 import CommonValidator from "../../../utils/validators/CommonValidator";
 import ITestGeneratorService from "../../testGen/ITextGeneratorService";
 import ELCIELTSInternalError from "../../../exception/ELCIELTSInternalError";
-import { TestStageStatus, TestStatus } from "../../../utils/types/common/common";
+import { SpeakingTestOperation, TestStageStatus, TestStatus } from "../../../utils/types/common/common";
 import IMediaRecorder from "../../mediaRecorder/IMediaRecorder";
 import { PracticeSpeakingTestResponse, PracticeSpeakingTestStageStartResponse } from "../../../utils/types/common/types";
 import { Constants } from "../../../utils/types/common/constants";
 import IPracticeSpeakingTestRepository from "../../../repository/speakingTest/practice/IPracticeSpeakingTestRepository";
 import IPracticeSpeakingTestStageRepository from "../../../repository/speakingTest/practice/IPracticeSpeakingTestStageRepository";
 import ISpeakingTestService from "./ISpeakingTestService";
+import { StartStopSpeakingTestStage } from "../../../utils/types/test/IELTSTestTypes";
 
 class PracticeSpeakingTestService implements ISpeakingTestService {
   private practiceSpeakingTestRepository: IPracticeSpeakingTestRepository;
@@ -30,21 +31,14 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
     this.mediaRecorder = mediaRecorder;
   }
 
-  async createSpeakingTest(studentId: string): Promise<PracticeSpeakingTestResponse> {
+  async createSpeakingTest(studentId: string): Promise<PracticeSpeakingTestModel> {
     const timeMills = Date.now();
     const speakingTest: PracticeSpeakingTestModel = await this.practiceSpeakingTestRepository.create(studentId, `${Constants.PRACTICE} - speaking test - ${timeMills}`);
 
     const speakingTestStage1: SpeakingTestStageModel = await this.createSpeakingTestStageTwo(speakingTest.practice_speaking_test_id);
-    const speakingTestStage2: SpeakingTestStageModel = await this.createSpeakingTestStageThree(speakingTest.practice_speaking_test_id, speakingTestStage1.generated_question);
+    await this.createSpeakingTestStageThree(speakingTest.practice_speaking_test_id, speakingTestStage1.generated_question);
 
-    const updatedSpeakingTest: PracticeSpeakingTestModel = await this.practiceSpeakingTestRepository.updateStatusById(
-      speakingTest.practice_speaking_test_id,
-      TestStatus.SPEAKING_TEST_CREATED
-    );
-    return {
-      speakingTest: updatedSpeakingTest,
-      speakingTestStages: [speakingTestStage1, speakingTestStage2],
-    };
+    return await this.practiceSpeakingTestRepository.updateStatusById(speakingTest.practice_speaking_test_id, TestStatus.SPEAKING_TEST_CREATED);
   }
 
   private async createSpeakingTestStageTwo(speakingTestId: string): Promise<SpeakingTestStageModel> {
@@ -69,71 +63,67 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
     throw new ELCIELTSInternalError(`Exception occured when generating speaking part ${3} question`);
   }
 
-  async getAllSpeakingTestsByReleventId(studentId: string, page: string, limit: string): Promise<Array<PracticeSpeakingTestResponse>> {
+  async updateSpeakingTestStage(
+    speakingTestId: string,
+    speakingTestStageId: string,
+    operation: string,
+    payLoad: StartStopSpeakingTestStage,
+    userId: string
+  ): Promise<Array<PracticeSpeakingTestStageModel>> {
+    CommonValidator.validateNotEmptyOrBlankString(speakingTestId, "Speaking Test ID");
+    CommonValidator.validateNotEmptyOrBlankString(speakingTestStageId, "Speaking Test Stage ID");
+    CommonValidator.validateNotEmptyOrBlankString(userId, "User Id");
+    const stgNumberValue = this.validateSpeakingTestStagingNumber(payLoad.stgNumber);
+    CommonValidator.validateParamInADefinedValues(operation, Object.values(SpeakingTestOperation), "Operation");
+
+    return operation === SpeakingTestOperation.START
+      ? await this.startSpeakingTestStageRecording(speakingTestId, speakingTestStageId, stgNumberValue, userId)
+      : await this.stopSpeakingTestStageRecording(speakingTestId, speakingTestStageId, stgNumberValue, userId);
+  }
+
+  async getAllSpeakingTestsByReleventId(studentId: string, page: string, limit: string): Promise<Array<PracticeSpeakingTestModel>> {
     CommonValidator.validateNotEmptyOrBlankString(studentId, "Student ID");
     const pageNum: number = CommonValidator.validatePositiveNumberString(page, "Page");
     const limitNum: number = CommonValidator.validatePositiveNumberString(limit, "Limit");
-    const speakingTests: Array<PracticeSpeakingTestModel> = await this.practiceSpeakingTestRepository.getAllByStudentIdWithPageAndLimit(studentId, pageNum, limitNum);
-
-    return speakingTests.map((test) => {
-      const stages = test.practice_speaking_test_stages ? test.practice_speaking_test_stages : [];
-      delete test.practice_speaking_test_stages;
-      return {
-        speakingTest: test,
-        speakingTestStages: stages,
-      };
-    });
+    return await this.practiceSpeakingTestRepository.getAllByStudentIdWithPageAndLimit(studentId, pageNum, limitNum);
   }
 
-  async startSpeakingTestStageRecording(speakingTestId: string, speakingTestStageId: string, stgNumber: string, userId: string): Promise<PracticeSpeakingTestStageStartResponse> {
-    console.log(`speakingTestId ${speakingTestId}: ${typeof speakingTestId}`);
-    console.log(`speakingTestStageId ${speakingTestStageId}: ${typeof speakingTestStageId}`);
-    CommonValidator.validateNotEmptyOrBlankString(speakingTestId, "Speaking Test ID");
-    CommonValidator.validateNotEmptyOrBlankString(speakingTestStageId, "Speaking Test Stage ID");
-    CommonValidator.validateNotEmptyOrBlankString(userId, "User Id");
-    const stgNumberValue = this.validateSpeakingTestStagingNumber(stgNumber);
-
-    this.mediaRecorder.startRecording(userId, `${userId}-${speakingTestStageId}.wav`);
-
-    return await this.updatePracticeSpeakingTestStageStatus(
-      speakingTestId,
-      speakingTestStageId,
-      stgNumberValue,
-      TestStageStatus.STARTED,
-      stgNumberValue == 2 ? TestStatus.SPEAKING_TEST_PART_2_STARTED : TestStatus.SPEAKING_TEST_PART_3_STARTED
-    );
-  }
-
-  async stopSpeakingTestStageRecording(speakingTestId: string, speakingTestStageId: string, stgNumber: string, userId: string): Promise<PracticeSpeakingTestStageStartResponse> {
-    CommonValidator.validateNotEmptyOrBlankString(speakingTestId, "Speaking Test ID");
-    CommonValidator.validateNotEmptyOrBlankString(speakingTestStageId, "Speaking Test Stage ID");
-    CommonValidator.validateNotEmptyOrBlankString(userId, "User Id");
-    const stgNumberValue = this.validateSpeakingTestStagingNumber(stgNumber);
-
-    this.mediaRecorder.stopRecording(userId);
-    return await this.updatePracticeSpeakingTestStageStatus(
-      speakingTestId,
-      speakingTestStageId,
-      stgNumberValue,
-      TestStageStatus.COMPLETED,
-      stgNumberValue == 2 ? TestStatus.SPEAKING_TEST_PART_2_COMPLETED : TestStatus.SPEAKING_TEST_PART_3_COMPLETED
-    );
-  }
-
-  private async updatePracticeSpeakingTestStageStatus(
+  private async startSpeakingTestStageRecording(
     speakingTestId: string,
     speakingTestStageId: string,
     stgNumber: number,
-    stageStatus: string,
-    speakingTestStatus: string
-  ): Promise<PracticeSpeakingTestStageStartResponse> {
-    const updatedSpeakingTestStage: SpeakingTestStageModel = await this.practiceSpeakingTestStageRepository.updateStatusBySpeakingTestStageId(speakingTestStageId, stageStatus);
-    const updatedSpeakingTest: PracticeSpeakingTestModel = await this.practiceSpeakingTestRepository.updateStatusById(speakingTestId, speakingTestStatus);
+    userId: string
+  ): Promise<Array<PracticeSpeakingTestStageModel>> {
+    this.mediaRecorder.startRecording(userId, `${userId}-${speakingTestStageId}.wav`);
 
-    return {
-      speakingTest: updatedSpeakingTest,
-      updatedSpeakingTestStage: updatedSpeakingTestStage,
-    };
+    await this.updatePracticeSpeakingTestStageStatus(
+      speakingTestId,
+      speakingTestStageId,
+      TestStageStatus.STARTED,
+      stgNumber == 2 ? TestStatus.SPEAKING_TEST_PART_2_STARTED : TestStatus.SPEAKING_TEST_PART_3_STARTED
+    );
+    return await this.getNextAvailableSpeakingTestStages(speakingTestId);
+  }
+
+  private async stopSpeakingTestStageRecording(
+    speakingTestId: string,
+    speakingTestStageId: string,
+    stgNumber: number,
+    userId: string
+  ): Promise<Array<PracticeSpeakingTestStageModel>> {
+    this.mediaRecorder.stopRecording(userId);
+    await this.updatePracticeSpeakingTestStageStatus(
+      speakingTestId,
+      speakingTestStageId,
+      TestStageStatus.COMPLETED,
+      stgNumber == 2 ? TestStatus.SPEAKING_TEST_PART_2_COMPLETED : TestStatus.SPEAKING_TEST_PART_3_COMPLETED
+    );
+    return await this.getNextAvailableSpeakingTestStages(speakingTestId);
+  }
+
+  private async updatePracticeSpeakingTestStageStatus(speakingTestId: string, speakingTestStageId: string, stageStatus: string, speakingTestStatus: string) {
+    await this.practiceSpeakingTestStageRepository.updateStatusBySpeakingTestStageId(speakingTestStageId, stageStatus);
+    await this.practiceSpeakingTestRepository.updateStatusById(speakingTestId, speakingTestStatus);
   }
 
   async getAllSpeakingTestStages(speakingTestId: string): Promise<Array<SpeakingTestStageModel>> {
@@ -151,6 +141,17 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
     const stgNumberValue = CommonValidator.validatePositiveNumberString(stgNumber, "stageNumber");
     CommonValidator.validateValidPossibleNumberValue(stgNumberValue, [2, 3], "stageNumber");
     return stgNumberValue;
+  }
+
+  async getNextAvailableSpeakingTestStages(speakingTestId: string): Promise<Array<PracticeSpeakingTestStageModel>> {
+    const writingTestStages: Array<PracticeSpeakingTestStageModel> = await this.practiceSpeakingTestStageRepository.getByStatusesAndId(speakingTestId, [
+      TestStageStatus.COMPLETED,
+      TestStageStatus.EVALUATED,
+      TestStageStatus.FAILED,
+    ]);
+    const nextStage = writingTestStages.length == 0 ? 2 : writingTestStages[0].stg_number + 1;
+    const nextWritingTestStage: PracticeSpeakingTestStageModel | null = await this.practiceSpeakingTestStageRepository.getByStageAndId(speakingTestId, nextStage);
+    return nextWritingTestStage ? [...writingTestStages, nextWritingTestStage] : writingTestStages;
   }
 }
 

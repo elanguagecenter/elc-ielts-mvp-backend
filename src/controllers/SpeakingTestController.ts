@@ -10,6 +10,7 @@ import PracticeSpeakingTestService from "../services/test/speaking/PracticeSpeak
 import MockSpeakingTestService from "../services/test/speaking/MockSpeakingTestService";
 import TestService from "../services/test/TestService";
 import ISpeakingTestService from "../services/test/speaking/ISpeakingTestService";
+import { PracticeSpeakingTestStageModel } from "../utils/types/dbtypes/models";
 
 class SpeakingTestController {
   private speakingTestServiceMap: Map<string, ISpeakingTestService>;
@@ -71,26 +72,24 @@ class SpeakingTestController {
   }
 
   @AsyncControllerHandle
-  async startSpeakingTestStage(req: Request, res: Response) {
+  async updateSpeakingTestStage(req: Request, res: Response, next: NextFunction) {
     const testId = req.params.testId;
     const speakingTestId = req.params.speakingTestId;
     const speakingTestStageId = req.params.stageId;
     const payLoad: StartStopSpeakingTestStage = req.body;
+    const operation = req.query.operation?.toString() || Constants.EMPTY_STR;
 
     const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
-    const result = await spekaingTestService.startSpeakingTestStageRecording(speakingTestId, speakingTestStageId, payLoad.stgNumber, req.userData.userId);
+    const result = await spekaingTestService.updateSpeakingTestStage(speakingTestId, speakingTestStageId, operation, payLoad, req.userData.userId);
     res.status(200).send(result);
   }
 
   @AsyncControllerHandle
-  async stoptSpeakingTestStage(req: Request, res: Response) {
+  async getNextAvailableWritingTestStages(req: Request, res: Response, next: NextFunction) {
     const testId = req.params.testId;
     const speakingTestId = req.params.speakingTestId;
-    const speakingTestStageId = req.params.stageId;
-    const payLoad: StartStopSpeakingTestStage = req.body;
-
-    const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
-    const result = await spekaingTestService.stopSpeakingTestStageRecording(speakingTestId, speakingTestStageId, payLoad.stgNumber, req.userData.userId);
+    const speakingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
+    const result: Array<PracticeSpeakingTestStageModel> = await speakingTestService.getNextAvailableSpeakingTestStages(speakingTestId);
     res.status(200).send(result);
   }
 }
