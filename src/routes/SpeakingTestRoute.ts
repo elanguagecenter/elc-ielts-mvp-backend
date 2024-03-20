@@ -8,10 +8,9 @@ const speakingTestController: SpeakingTestController = new SpeakingTestControlle
 // routes begining /ielts/test/:testId/speaking
 speakingTestRoute.post("/", CognitoAuthMiddleware, speakingTestController.createNewSpeakingTest.bind(speakingTestController));
 speakingTestRoute.get("/", CognitoAuthMiddleware, speakingTestController.getAllSpeakingTestsByTestIdOrUserId.bind(speakingTestController));
-speakingTestRoute.get("/:speakingTestId/stages", CognitoAuthMiddleware, speakingTestController.getExistingSpeakingStagesForSpeakingTestId.bind(speakingTestController));
+speakingTestRoute.get("/:speakingTestId/stages", CognitoAuthMiddleware, speakingTestController.getNextAvailableWritingTestStages.bind(speakingTestController));
 speakingTestRoute.get("/:speakingTestId/stages/:stageId", CognitoAuthMiddleware, speakingTestController.getSpecificExistingSpeakingStage.bind(speakingTestController));
 
-speakingTestRoute.post("/:speakingTestId/stages/:stageId/start", CognitoAuthMiddleware, speakingTestController.startSpeakingTestStage.bind(speakingTestController));
-speakingTestRoute.post("/:speakingTestId/stages/:stageId/stop", CognitoAuthMiddleware, speakingTestController.stoptSpeakingTestStage.bind(speakingTestController));
+speakingTestRoute.put("/:speakingTestId/stages/:stageId", CognitoAuthMiddleware, speakingTestController.updateSpeakingTestStage.bind(speakingTestController));
 
 export default speakingTestRoute;

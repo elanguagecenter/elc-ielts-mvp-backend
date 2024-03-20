@@ -1,6 +1,6 @@
 import ELCIELTSNotImplementedError from "../../../exception/ELCIELTSNotImplementedError";
 import { SpeakingTestStageModel } from "../../../utils/types/dbtypes/models";
-import { UpdateSpeakingTestQuestion } from "../../../utils/types/test/IELTSTestTypes";
+import { StartStopSpeakingTestStage, UpdateSpeakingTestQuestion } from "../../../utils/types/test/IELTSTestTypes";
 import CommonValidator from "../../../utils/validators/CommonValidator";
 import { ITestService } from "../TestService";
 import ITestGeneratorService from "../../testGen/ITextGeneratorService";
@@ -31,6 +31,12 @@ class MockSpeakingTestService implements ISpeakingTestService {
       [3, (prevGenText: string) => testGenService.generateSpeakingTestStage3(prevGenText)],
     ]);
     this.mediaRecorder = mediaRecorder;
+  }
+  updateSpeakingTestStage(speakingTestId: string, speakingTestStageId: string, operation: string, payLoad: StartStopSpeakingTestStage, userId: string): Promise<any[]> {
+    throw new Error("Method not implemented.");
+  }
+  getNextAvailableSpeakingTestStages(speakingTestId: string): Promise<any[]> {
+    throw new Error("Method not implemented.");
   }
   getAllSpeakingTestsByReleventId(id: string, page: string, limit: string): Promise<any> {
     throw new Error("Method not implemented.");
