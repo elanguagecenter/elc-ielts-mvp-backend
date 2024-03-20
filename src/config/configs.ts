@@ -6,6 +6,7 @@ const configs = {
   mediaSockPort: process.env.MEDIA_SOCK_PORT || 8001,
   ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
   mediaOutBasepath: process.env.MEDIA_OUT_BASEPATH || "./",
+  openAIAPIKey: process.env.CHAT_GPT_APIKEY,
 };
 
 export default configs;

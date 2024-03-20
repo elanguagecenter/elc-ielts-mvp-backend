@@ -1,0 +1,8 @@
+node_modules
+.git
+*.md
+.gitignore
+nodemon.json
+tsconfig.json
+.env
+example.env
