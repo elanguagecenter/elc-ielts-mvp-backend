@@ -1,10 +1,10 @@
-import ITestGeneratorService from "./ITestGeneratorService";
+import ITextGeneratorService from "./ITextGeneratorService";
 
-class DummyTestGeneratorService implements ITestGeneratorService {
-  private static instance: ITestGeneratorService = new DummyTestGeneratorService();
+class DummyTestGeneratorService implements ITextGeneratorService {
+  private static instance: ITextGeneratorService = new DummyTestGeneratorService();
   private constructor() {}
 
-  static getInstance(): ITestGeneratorService {
+  static getInstance(): ITextGeneratorService {
     return this.instance;
   }
 
@@ -14,6 +14,13 @@ class DummyTestGeneratorService implements ITestGeneratorService {
 
   async generateSpeakingTestStage3(previousGeneratedText: string): Promise<string> {
     return Promise.resolve("What are the things to consider when selecting a place to stay on a vacation");
+  }
+
+  generateWritingTestStage1(): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
+  generateWritingTestStage2(): Promise<string> {
+    throw new Error("Method not implemented.");
   }
 }
 
