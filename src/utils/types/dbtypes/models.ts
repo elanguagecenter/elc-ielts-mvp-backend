@@ -53,3 +53,30 @@ export interface PracticeSpeakingTestStageModel extends SpeakingTestStageModel {
   practice_speaking_test_stage_id: string;
   practice_speaking_test_id: string;
 }
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ 
+ * Practice Writing
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ */
+export interface PracticeWritingTestModel {
+  practice_writing_test_id: string;
+  index: number;
+  current_status: string;
+  created_time: Date;
+  last_modified_time: Date;
+  student_id: string;
+  practice_writing_test_stages?: Array<PracticeWritingTestStageModel>;
+  // practice_writing_test_statuses :
+}
+
+export interface PracticeWritingTestStageModel {
+  practice_writing_test_stage_id: string;
+  stg_number: number;
+  generated_question: string;
+  submitted_answer: string | null;
+  evaluated_result: string | null;
+  status: string;
+  created_time: Date;
+  last_modified_time: Date;
+}
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ */
