@@ -3,7 +3,7 @@ import { SpeakingTestStageModel } from "../../../utils/types/dbtypes/models";
 import { UpdateSpeakingTestQuestion } from "../../../utils/types/test/IELTSTestTypes";
 import CommonValidator from "../../../utils/validators/CommonValidator";
 import { ITestService } from "../TestService";
-import ITestGeneratorService from "../../testGen/ITestGeneratorService";
+import ITestGeneratorService from "../../testGen/ITextGeneratorService";
 import IMediaRecorder from "../../mediaRecorder/IMediaRecorder";
 import { SpeakingTestResponse } from "../../../utils/types/common/types";
 import IPracticeSpeakingTestRepository from "../../../repository/speakingTest/practice/IPracticeSpeakingTestRepository";
