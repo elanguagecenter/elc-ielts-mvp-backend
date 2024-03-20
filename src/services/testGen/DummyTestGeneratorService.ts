@@ -22,6 +22,10 @@ class DummyTestGeneratorService implements ITextGeneratorService {
   generateWritingTestStage2(): Promise<string> {
     throw new Error("Method not implemented.");
   }
+
+  evaluateWritingTestStage(question: string, answer: string, testStage: number): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
 }
 
 export default DummyTestGeneratorService;

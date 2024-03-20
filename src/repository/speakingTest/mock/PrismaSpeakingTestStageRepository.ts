@@ -73,6 +73,13 @@ class PrismaSpeakingTestStageRepository implements ISpeakingTestStageRepository<
         throw new ELCIELTSNotFoundError(`Speaking Test stage not found for speakingTestId: ${speakingTestId}`);
       });
   }
+
+  getByStatusesAndId(speakingTestId: string, statuses: string[]): Promise<SpeakingTestStageModel[]> {
+    throw new Error("Method not implemented.");
+  }
+  getByStageAndId(speakingTestId: string, stage: number): Promise<SpeakingTestStageModel | null> {
+    throw new Error("Method not implemented.");
+  }
 }
 
 export default PrismaSpeakingTestStageRepository;

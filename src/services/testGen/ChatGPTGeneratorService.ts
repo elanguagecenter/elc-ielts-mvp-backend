@@ -5,13 +5,14 @@ import Contexts from "../../utils/openai/context.json";
 import OpenAIUtils from "../../utils/openai/OpenAIUtils";
 import ELCIELTSGPTError from "../../exception/ELCIELTSGPTError";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import configs from "../../config/configs";
 
 class ChatGPTGeneratorService implements ITextGeneratorService {
   private openai: OpenAI;
   private static instance: ChatGPTGeneratorService = new ChatGPTGeneratorService();
   private constructor() {
     this.openai = new OpenAI({
-      apiKey: process.env.CHAT_GPT_APIKEY,
+      apiKey: configs.openAIAPIKey,
     });
   }
 
