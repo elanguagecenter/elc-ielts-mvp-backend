@@ -34,6 +34,9 @@ jobs:
       
       - name: docker build
         run: docker build -t elc-b2b-ielts-mvp-dev-api-image .
+      
+      - name: Tag image
+        run: docker tag elc-b2b-ielts-mvp-dev-api-image:latest ${{ vars.ECR_URL }}/elc-b2b-ielts-mvp-dev-api-image:latest
 
       - name: docker push Image
         run: docker push ${{ vars.ECR_URL }}/elc-b2b-ielts-mvp-dev-api-image:latest
