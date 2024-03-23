@@ -3,8 +3,9 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 COPY package.json ./
-COPY dist/ .
+COPY dist/ ./src
 COPY prisma/ ./prisma
+COPY src/apiDocs ./src
 
 RUN npm install --only=production
 RUN npm install -g prisma
@@ -12,4 +13,4 @@ RUN prisma generate
 
 EXPOSE 8000
 
-CMD ["node", "Index.js"]
+CMD ["node", "src/Index.js"]
