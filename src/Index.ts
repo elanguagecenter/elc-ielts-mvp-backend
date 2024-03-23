@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 // swagger openapi doc route
-const swaggerDocument = YAML.load("./src/apiDocs/openapi.yaml");
+const swaggerDocument = YAML.load("src/apiDocs/openapi.yaml");
 app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Buisness logic routes

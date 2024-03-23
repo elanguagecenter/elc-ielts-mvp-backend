@@ -1,4 +1,4 @@
-import { UserData } from "../common/types";
+import { UserData } from "../../common/types";
 
 export {};
 
