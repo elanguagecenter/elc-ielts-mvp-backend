@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY package.json ./
 COPY dist/ ./src
 COPY prisma/ ./prisma
-COPY src/apiDocs ./src
+COPY src/apiDocs/ ./src/apiDocs
 
 RUN npm install --only=production
 RUN npm install -g prisma
