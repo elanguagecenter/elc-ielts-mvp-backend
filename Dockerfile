@@ -11,6 +11,6 @@ RUN npm install --only=production
 RUN npm install -g prisma
 RUN prisma generate
 
-EXPOSE 8000
+EXPOSE 8000 8001
 
 CMD ["node", "src/Index.js"]
