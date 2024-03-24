@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import http from "http";
 import cors from "cors";
 import configs from "./config/configs";
 import healthCheckRouter from "./routes/HealthCheckRoute";
@@ -11,7 +12,8 @@ import MediaSockServer from "./MediaSockServer";
 import writingTestRoute from "./routes/WritingTestRoute";
 
 const app: Express = express();
-const mediaSockServer: MediaSockServer = MediaSockServer.getInstance();
+const server: http.Server = http.createServer(app);
+const mediaSockServer: MediaSockServer = new MediaSockServer(server);
 
 // cors and json middlewares
 app.use(cors());
@@ -32,8 +34,12 @@ app.use("/ielts/test", testRoute);
  */
 app.use(SimpleErrorHandler);
 
-mediaSockServer.start();
-app.listen(process.env.PORT, () => {
+server.listen(configs.port, () => {
   console.log("Server Listening on PORT:", configs.port);
   console.log("API Doc URL:", `${configs.serverUrl}/api`);
+});
+
+server.on("close", () => {
+  console.log("Closing the websocket server");
+  mediaSockServer.close();
 });

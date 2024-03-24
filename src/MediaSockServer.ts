@@ -1,19 +1,18 @@
 import { Server, Socket } from "socket.io";
-import configs from "./config/configs";
+import http from "http";
 
 /*
  TODO - Implement the exception handling
 */
 class MediaSockServer {
-  private socketMap: Map<string, Socket>;
+  private static socketMap: Map<string, Socket> = new Map();
   private sockIO: Server;
-  private static instance: MediaSockServer = new MediaSockServer();
-  constructor() {
-    this.socketMap = new Map();
-    this.sockIO = this.initialize();
+  constructor(server: http.Server) {
+    // this.socketMap = new Map();
+    this.sockIO = this.initialize(server);
   }
-  private initialize(): Server {
-    const sockIO: Server = new Server({
+  private initialize(server: http.Server): Server {
+    const sockIO: Server = new Server(server, {
       cors: {
         origin: "*",
         methods: ["GET", "POST"],
@@ -23,26 +22,17 @@ class MediaSockServer {
       const userId = socket.handshake.query.userId as string;
       console.log(`New client connected: ${userId}`);
 
-      this.socketMap.set(userId, socket);
+      MediaSockServer.socketMap.set(userId, socket);
       socket.on("disconnect", () => {
-        this.socketMap.delete(userId);
+        MediaSockServer.socketMap.delete(userId);
       });
       socket.emit("ack");
     });
     return sockIO;
   }
 
-  static getInstance(): MediaSockServer {
-    return this.instance;
-  }
-
-  getSocketMap(): Map<string, Socket> {
-    return this.socketMap;
-  }
-
-  start(): void {
-    this.sockIO.listen(Number(configs.mediaSockPort));
-    console.log(`Media Sock Server started on PORT: ${configs.mediaSockPort}`);
+  static getSocketMap(): Map<string, Socket> {
+    return MediaSockServer.socketMap;
   }
 
   close(): void {
