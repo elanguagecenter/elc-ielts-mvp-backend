@@ -10,7 +10,7 @@ class FSMediaRecorder implements IMediaRecorder {
   private writeStreamMap: Map<string, fs.WriteStream>;
   private static instance: FSMediaRecorder = new FSMediaRecorder();
   private constructor() {
-    this.socketMap = MediaSockServer.getInstance().getSocketMap();
+    this.socketMap = MediaSockServer.getSocketMap();
     this.writeStreamMap = new Map();
   }
 
