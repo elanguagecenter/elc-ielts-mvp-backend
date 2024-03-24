@@ -10,7 +10,7 @@ class FFMpegMediaRecorder implements IMediaRecorder {
   private ffmpegProcessMap: Map<string, ChildProcessWithoutNullStreams>;
   private static instance: FFMpegMediaRecorder = new FFMpegMediaRecorder();
   private constructor() {
-    this.socketMap = MediaSockServer.getInstance().getSocketMap();
+    this.socketMap = MediaSockServer.getSocketMap();
     this.ffmpegProcessMap = new Map();
   }
 
