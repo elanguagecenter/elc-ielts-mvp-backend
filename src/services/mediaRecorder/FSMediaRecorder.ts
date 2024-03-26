@@ -4,7 +4,6 @@ import { Socket } from "socket.io";
 import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 import configs from "../../config/configs";
 import fs from "fs";
-import path from "path";
 
 class FSMediaRecorder implements IMediaRecorder {
   private socketMap: Map<string, Socket>;
@@ -22,8 +21,7 @@ class FSMediaRecorder implements IMediaRecorder {
   startRecording(userId: string, outputFile: string): void {
     const socket: Socket | undefined = this.socketMap.get(userId);
     if (socket) {
-      const filePath = path.join(__dirname, `${configs.mediaOutBasepath}`, `${outputFile}`);
-      const writeStream: fs.WriteStream = fs.createWriteStream(filePath, { flags: "a" });
+      const writeStream: fs.WriteStream = fs.createWriteStream(`${configs.mediaOutBasepath}/${outputFile}`, { flags: "a" });
       socket.on("audioChunk", (chunk) => {
         console.log("Writing audio data to file");
         console.log(chunk);
