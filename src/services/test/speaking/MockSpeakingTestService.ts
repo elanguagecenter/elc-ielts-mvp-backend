@@ -14,7 +14,7 @@ class MockSpeakingTestService implements ISpeakingTestService {
   private practiceSpeakingTestRepository: IPracticeSpeakingTestRepository;
   private practiceSpeakingTestStageRepository: IPracticeSpeakingTestStageRepository;
   private testService: ITestService;
-  private testGenFunctionMap: Map<number, (...val: Array<string>) => Promise<string>>;
+  private testGenFunctionMap: Map<number, (...val: Array<string>) => Promise<Array<string | null>>>;
   private mediaRecorder: IMediaRecorder;
   constructor(
     practiceSpeakingTestRepository: IPracticeSpeakingTestRepository,
