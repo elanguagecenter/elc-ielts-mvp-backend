@@ -49,6 +49,7 @@ model student {
   tests                   test[]
   practice_speaking_tests practice_speaking_test[]
   practice_writing_tests  practice_writing_test[]
+  practice_reading_test   practice_reading_test[]
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//
@@ -309,6 +310,59 @@ model reading_question {
   last_modified_time    DateTime           @updatedAt
   reading_test_stage    reading_test_stage @relation(fields: [reading_test_stage_id], references: [reading_test_stage_id])
   reading_test_stage_id String
+}
+
+//* -------------------------------------------------------------------------------------------------------- *//
+
+//* -------------------------------------------------------------------------------------------------------- *//
+//* Practice Reading Test Related Models *//
+//* -------------------------------------------------------------------------------------------------------- *//
+
+model practice_reading_test {
+  practice_reading_test_id       String                         @id @default(uuid())
+  index                          Int                            @default(autoincrement())
+  current_status                 String                         @db.VarChar(50)
+  created_time                   DateTime                       @default(now())
+  last_modified_time             DateTime                       @updatedAt
+  student                        student                        @relation(fields: [student_id], references: [student_id])
+  student_id                     String
+  practice_reading_test_stages   practice_reading_test_stage[]
+  practice_reading_test_statuses practice_reading_test_status[]
+}
+
+model practice_reading_test_status {
+  practice_reading_test_status_id String                @id @default(uuid())
+  status                          String                @db.VarChar(50)
+  created_time                    DateTime              @default(now())
+  last_modified_time              DateTime              @updatedAt
+  practice_reading_test           practice_reading_test @relation(fields: [practice_reading_test_id], references: [practice_reading_test_id])
+  practice_reading_test_id        String
+}
+
+model practice_reading_test_stage {
+  practice_reading_test_stage_id String                      @id @default(uuid())
+  stg_number                     Int
+  generated_scenario_text        String
+  status                         String                      @db.VarChar(50)
+  created_time                   DateTime                    @default(now())
+  last_modified_time             DateTime                    @updatedAt
+  practice_reading_test          practice_reading_test       @relation(fields: [practice_reading_test_id], references: [practice_reading_test_id])
+  practice_reading_test_id       String
+  practice_reading_questions     practice_reading_question[]
+}
+
+model practice_reading_question {
+  practice_reading_question_id   String                      @id @default(uuid())
+  question_number                Int
+  generated_question             String
+  submitted_anser                String?
+  evaluated_result               String?
+  status                         String                      @db.VarChar(50)
+  type                           String                      @db.VarChar(20)
+  created_time                   DateTime                    @default(now())
+  last_modified_time             DateTime                    @updatedAt
+  practice_reading_test_stage    practice_reading_test_stage @relation(fields: [practice_reading_test_stage_id], references: [practice_reading_test_stage_id])
+  practice_reading_test_stage_id String
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//
