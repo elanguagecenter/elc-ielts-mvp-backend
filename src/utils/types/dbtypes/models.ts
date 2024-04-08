@@ -80,3 +80,41 @@ export interface PracticeWritingTestStageModel {
 }
 
 /* ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ 
+ * Practice Reading
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ */
+export interface PracticeReadingTestModel {
+  practice_reading_test_id: string;
+  index: number;
+  current_status: string;
+  created_time: Date;
+  last_modified_time: Date;
+  student_id: string;
+  practice_reading_test_stages?: Array<PracticeReadingTestStageModel>;
+}
+
+export interface PracticeReadingTestStageModel {
+  practice_reading_test_stage_id: string;
+  stg_number: number;
+  generated_scenario_text: string;
+  status: string;
+  created_time: Date;
+  last_modified_time: Date;
+  practice_reading_test_id: string;
+  practice_reading_test_stage_questions?: Array<PracticeReadingTestStageQuestionsModel>;
+}
+
+export interface PracticeReadingTestStageQuestionsModel {
+  practice_reading_question_id: string;
+  question_number: number;
+  generated_question: string;
+  submitted_anser: string | null;
+  evaluated_result: string | null;
+  status: string;
+  type: string;
+  created_time: Date;
+  last_modified_time: Date;
+  practice_reading_test_stage_id: string;
+}
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ */

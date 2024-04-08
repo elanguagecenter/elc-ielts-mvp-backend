@@ -11,7 +11,10 @@ export enum TestStatus {
   SPEAKING_TEST_PART_3_FAILED = "SPEAKING_TEST_PART_3_FAILED",
 
   WRITING_TEST_CREATED = "WRITING_TEST_CREATED",
-  WRITING_TEST_STAGES_GENERATED = "WRITING_TEST_CREATED",
+  WRITING_TEST_STAGES_GENERATED = "WRITING_TEST_STAGES_GENERATED",
+
+  READING_TEST_CREATED = "READING_TEST_CREATED",
+  READING_TEST_STAGES_GENERATED = "READING_TEST_STAGES_GENERATED",
 }
 
 // export enum PracticeSpeakingTestStatus {
@@ -28,6 +31,7 @@ export enum TestStatus {
 
 export enum TestStageStatus {
   CREATED = "CREATED",
+  QUESTIONS_GENERATED = "QUESTIONS_GENERATED",
   STARTED = "STARTED",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
@@ -42,11 +46,19 @@ export enum QuestionStatus {
   EVALUATED = "EVALUATED",
 }
 
-export enum WritingTestOperation {
+export enum TestOperations {
   EVALUATE = "evaluate",
 }
 
 export enum SpeakingTestOperation {
   START = "start",
   STOP = "stop",
+}
+
+export enum ReadingTestQuestionTypes {
+  MULTIPLE_CHOICE = "Multiple Choice",
+  MATCHING_HEADINGS = "Matching Headings",
+  MATCHING_INFORMATION = "Matching Information",
+  MATCHING_FEATURES = "Matching Features",
+  SENETENCE_COMPLETION = "Sentence Completion",
 }
