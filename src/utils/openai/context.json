@@ -118,5 +118,27 @@
         "Gender roles and equality",
         "Financial management",
         "Local customs and traditions"
+    ],
+
+    "ReadingTestPart1": [
+        "public announcements",
+        "event advertisements",
+        "information about community services",
+        "advertisements for a product",
+        "advertisements for a service",
+        "Notice for a events in a company, university, sports club, etc",
+        "promotional offers for a product or service",
+        "instructions for filling out forms",
+        "instructions for using equipment",
+        "instructions for assembling furniture",
+        "directions to navigating a location",
+        "read and understand forms, applications or official documents",
+        "menus from restaurants",
+        "catalogs from shops",
+        "special offers from a shop",
+        "schedules or timetables",
+        "agendas for a event",
+        "invitations, or RSVPs",
+        "notices or regulations"
     ]
 }
