@@ -5,4 +5,9 @@ export const Constants = {
   DEAULT_PAGE_NUM: "0",
   DEFAULT_PAGE_LIMIT: "5",
   EMPTY_STR: "",
+  CATEGORY_SEPERATOR: "category",
+  QUESTION_SEPERATOR: "question",
+
+  //numbers
+  ZERO: "0",
 };

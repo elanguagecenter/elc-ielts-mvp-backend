@@ -32,3 +32,11 @@ export interface PracticeSpeakingTestStageStartResponse {
   speakingTest: PracticeSpeakingTestModel;
   updatedSpeakingTestStage: SpeakingTestStageModel;
 }
+
+export interface ReadingQuestionsCreateManyDataType {
+  practice_reading_test_stage_id: string;
+  generated_question: string;
+  question_number: number;
+  type: string;
+  status: string;
+}

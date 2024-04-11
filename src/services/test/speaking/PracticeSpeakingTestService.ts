@@ -10,11 +10,12 @@ import IPracticeSpeakingTestRepository from "../../../repository/speakingTest/pr
 import IPracticeSpeakingTestStageRepository from "../../../repository/speakingTest/practice/IPracticeSpeakingTestStageRepository";
 import ISpeakingTestService from "./ISpeakingTestService";
 import { StartStopSpeakingTestStage } from "../../../utils/types/test/IELTSTestTypes";
+import ChatGPTValidator from "../../../utils/validators/ChatGPTValidator";
 
 class PracticeSpeakingTestService implements ISpeakingTestService {
   private practiceSpeakingTestRepository: IPracticeSpeakingTestRepository;
   private practiceSpeakingTestStageRepository: IPracticeSpeakingTestStageRepository;
-  private testGenFunctionMap: Map<number, (...val: Array<string>) => Promise<string>>;
+  private testGenFunctionMap: Map<number, (...val: Array<string>) => Promise<Array<string | null>>>;
   private mediaRecorder: IMediaRecorder;
   constructor(
     practiceSpeakingTestRepository: IPracticeSpeakingTestRepository,
@@ -45,8 +46,9 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
     CommonValidator.validateNotEmptyOrBlankString(speakingTestId, "Speaking Test ID");
     const generateSpeakingTestPart = this.testGenFunctionMap.get(2);
     if (generateSpeakingTestPart) {
-      const question = await generateSpeakingTestPart();
-      return await this.practiceSpeakingTestStageRepository.create(speakingTestId, question, 2);
+      const question: Array<string | null> = await generateSpeakingTestPart();
+      const validatedQuestion: string = ChatGPTValidator.validateNotNullChatGPTResponse(question[0]);
+      return await this.practiceSpeakingTestStageRepository.create(speakingTestId, validatedQuestion, 2);
     }
 
     throw new ELCIELTSInternalError(`Exception occured when generating speaking part ${2} question`);
@@ -56,8 +58,9 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
     CommonValidator.validateNotEmptyOrBlankString(speakingTestId, "Speaking Test ID");
     const generateSpeakingTestPart = this.testGenFunctionMap.get(3);
     if (generateSpeakingTestPart) {
-      const question = await generateSpeakingTestPart(prevText);
-      return await this.practiceSpeakingTestStageRepository.create(speakingTestId, question, 3);
+      const question: Array<string | null> = await generateSpeakingTestPart(prevText);
+      const validatedQuestion: string = ChatGPTValidator.validateNotNullChatGPTResponse(question[0]);
+      return await this.practiceSpeakingTestStageRepository.create(speakingTestId, validatedQuestion, 3);
     }
 
     throw new ELCIELTSInternalError(`Exception occured when generating speaking part ${3} question`);

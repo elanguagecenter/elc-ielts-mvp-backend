@@ -1,8 +1,9 @@
 import IPracticeWritingTestRepository from "../../../repository/writingTest/practice/IPracticeWritingTestRepository";
 import IPracticeWritingTestStageRepository from "../../../repository/writingTest/practice/IPracticeWritingTestStageRepository";
-import { TestStageStatus, TestStatus, WritingTestOperation } from "../../../utils/types/common/common";
+import { TestOperations, TestStageStatus, TestStatus } from "../../../utils/types/common/common";
 import { PracticeWritingTestModel, PracticeWritingTestStageModel } from "../../../utils/types/dbtypes/models";
 import { UpdateWritingTestStage } from "../../../utils/types/test/IELTSTestTypes";
+import ChatGPTValidator from "../../../utils/validators/ChatGPTValidator";
 import CommonValidator from "../../../utils/validators/CommonValidator";
 import ITextGeneratorService from "../../testGen/ITextGeneratorService";
 import IWritingTestService from "./IWritingTestService";
@@ -31,13 +32,15 @@ class PracticeWritingTestService implements IWritingTestService {
   }
 
   private async generateWritingTestStageOne(writingTestId: string) {
-    const stageOne: string = await this.textGeneratorService.generateWritingTestStage1();
-    await this.practiceWritingTestStageRepository.create(writingTestId, stageOne, 1);
+    const stageOne: Array<string | null> = await this.textGeneratorService.generateWritingTestStage1();
+    const validatedStageOne: string = ChatGPTValidator.validateNotNullChatGPTResponse(stageOne[0]);
+    await this.practiceWritingTestStageRepository.create(writingTestId, validatedStageOne, 1);
   }
 
   private async generateWritingTestStageTwo(writingTestId: string) {
-    const stageTwo: string = await this.textGeneratorService.generateWritingTestStage2();
-    await this.practiceWritingTestStageRepository.create(writingTestId, stageTwo, 2);
+    const stageTwo: Array<string | null> = await this.textGeneratorService.generateWritingTestStage2();
+    const validatedStageTwo: string = ChatGPTValidator.validateNotNullChatGPTResponse(stageTwo[0]);
+    await this.practiceWritingTestStageRepository.create(writingTestId, validatedStageTwo, 2);
   }
 
   async submitAnswer(id: string, answer: string): Promise<any> {
@@ -71,16 +74,17 @@ class PracticeWritingTestService implements IWritingTestService {
     CommonValidator.validateNotEmptyOrBlankString(payLoad.answer, "Writing Answer");
     CommonValidator.validateNotEmptyOrBlankString(writingTestId, "Writing Test ID");
     CommonValidator.validateNotEmptyOrBlankString(writingTestStageId, "Writing Test Stage Id");
-    CommonValidator.validateParamInADefinedValues(operation, Object.values(WritingTestOperation), "Operation");
+    CommonValidator.validateParamInADefinedValues(operation, Object.values(TestOperations), "Operation");
     const isAlreadyAnswered: boolean = await this.practiceWritingTestStageRepository.checkAlreadyAnswered(writingTestStageId);
     CommonValidator.validateTrueValue(!isAlreadyAnswered, "Already answered");
     const updatedStage: PracticeWritingTestStageModel = await this.practiceWritingTestStageRepository.updateSubmittedAnswerById(writingTestStageId, payLoad.answer);
-    const evaluatedResult: string = await this.textGeneratorService.evaluateWritingTestStage(
+    const evaluatedResult: Array<string | null> = await this.textGeneratorService.evaluateWritingTestStage(
       updatedStage.generated_question,
       updatedStage.submitted_answer!,
       updatedStage.stg_number
     );
-    await this.practiceWritingTestStageRepository.updateEvaluatedResultById(writingTestStageId, evaluatedResult);
+    const validatedResult: string = ChatGPTValidator.validateNotNullChatGPTResponse(evaluatedResult[0]);
+    await this.practiceWritingTestStageRepository.updateEvaluatedResultById(writingTestStageId, validatedResult);
     return await this.getNextAvailableWritingTestStages(writingTestId);
   }
 }

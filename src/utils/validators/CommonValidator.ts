@@ -1,4 +1,5 @@
 import ELCIELTSDataInvalidError from "../../exception/ELCIELTSDataInvalidError";
+import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 
 const validateNotNull = <T>(param: T | undefined, paramName: string) => {
   if (param === null || param === undefined || param === "undefined") {
@@ -55,6 +56,21 @@ const validateTrueValue = (value: boolean, error: string) => {
   }
 };
 
+const arraySizeValidator = <T>(array: Array<T>, size: number, error: ELCIELTSInternalError) => {
+  if (array.length !== size) {
+    throw error;
+  }
+};
+
+const validateJsonString = (jsonString: string, paramName: string): Map<string, string> => {
+  validateNotNull<string>(jsonString, paramName);
+  try {
+    return new Map<string, string>(JSON.parse(jsonString));
+  } catch (err) {
+    throw new ELCIELTSDataInvalidError(`${paramName} should be a valid json object`);
+  }
+};
+
 export default {
   validateNotNull: validateNotNull,
   validateNotEmptyOrBlankString: validateNotEmptyOrBlankString,
@@ -64,4 +80,6 @@ export default {
   validateDefinedStatus: validateDefinedStatus,
   validateParamInADefinedValues: validateParamInADefinedValues,
   validateTrueValue: validateTrueValue,
+  arraySizeValidator: arraySizeValidator,
+  validateJsonString: validateJsonString,
 };
