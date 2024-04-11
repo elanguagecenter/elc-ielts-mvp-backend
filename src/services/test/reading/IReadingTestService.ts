@@ -5,9 +5,9 @@ interface IReadingTestService {
   getTestStageByStageId(testStageId: string): Promise<any>;
   createReadingTest(id: string): Promise<any>;
   getAllReadingTestsByReleventId(id: string, page: string, limit: string): Promise<any>;
-  getNextAvailableReadingTestStages(readingTestId: string): Promise<Array<any>>;
+  getReadingTestStageByStageNum(readingTestId: string, stageNum: string): Promise<any>;
   getQuestionsByStageId(readingTestStageId: string): Promise<Array<any>>;
-  generateReadingTestStageQuestions(stageId: string): Promise<PracticeReadingTestStageModel>;
+  createStage(readingTestId: string, stageNum: string): Promise<PracticeReadingTestStageModel>;
   evaluateTestStage(testId: string, testStageId: string, operation: string, payLoad: UpdateReadingTestStage): Promise<PracticeReadingTestStageModel>;
 }
 

@@ -26,6 +26,22 @@ class PrismaPracticeReadingTestStageRepository implements IPracticeReadingTestSt
   }
 
   @Handle
+  async getWithQuestionsByStageId(stageId: string): Promise<PracticeReadingTestStageModel> {
+    return await prisma.practice_reading_test_stage
+      .findUniqueOrThrow({
+        where: {
+          practice_reading_test_stage_id: stageId,
+        },
+        include: {
+          practice_reading_questions: true,
+        },
+      })
+      .catch(() => {
+        throw new ELCIELTSNotFoundError(`Reading Test stage not found for practiceReadingTestStageId: ${stageId}`);
+      });
+  }
+
+  @Handle
   async create(practiceReadingTestId: string, generatedText: string, stgNumber: number): Promise<PracticeReadingTestStageModel> {
     return await prisma.practice_reading_test_stage.create({
       data: {
@@ -50,6 +66,25 @@ class PrismaPracticeReadingTestStageRepository implements IPracticeReadingTestSt
   }
 
   @Handle
+  async updateStatusByIdAndGetWithQuestions(practiceReadingTestStageId: string, status: string): Promise<PracticeReadingTestStageModel> {
+    return await prisma.practice_reading_test_stage.update({
+      where: {
+        practice_reading_test_stage_id: practiceReadingTestStageId,
+      },
+      data: {
+        status: status,
+      },
+      include: {
+        practice_reading_questions: {
+          orderBy: {
+            question_number: "asc",
+          },
+        },
+      },
+    });
+  }
+
+  @Handle
   async getByStatusesAndId(readingTestId: string, statuses: Array<string>): Promise<Array<PracticeReadingTestStageModel>> {
     return await prisma.practice_reading_test_stage.findMany({
       where: {
@@ -65,13 +100,34 @@ class PrismaPracticeReadingTestStageRepository implements IPracticeReadingTestSt
   }
 
   @Handle
-  async getByStageAndId(readingTestId: string, stage: number): Promise<PracticeReadingTestStageModel | null> {
-    return await prisma.practice_reading_test_stage.findFirst({
+  async getByStageNumberAndId(readingTestId: string, stage: number): Promise<Array<PracticeReadingTestStageModel>> {
+    return await prisma.practice_reading_test_stage.findMany({
       where: {
         practice_reading_test_id: readingTestId,
         stg_number: stage,
       },
     });
+  }
+
+  @Handle
+  async getWithQuestionsByStageAndTestId(readingTestId: string, stage: number): Promise<PracticeReadingTestStageModel> {
+    return await prisma.practice_reading_test_stage
+      .findFirstOrThrow({
+        where: {
+          practice_reading_test_id: readingTestId,
+          stg_number: stage,
+        },
+        include: {
+          practice_reading_questions: {
+            orderBy: {
+              question_number: "asc",
+            },
+          },
+        },
+      })
+      .catch(() => {
+        throw new ELCIELTSNotFoundError(`Reading Test stage not found for readingTestId: ${readingTestId} and stageNum ${stage}`);
+      });
   }
 
   @Handle

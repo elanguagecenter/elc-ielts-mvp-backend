@@ -47,20 +47,22 @@ class ReadingTestController {
   }
 
   @AsyncControllerHandle
-  async createReadingTestStageQuestions(req: Request, res: Response, next: NextFunction) {
+  async createReadingTestStage(req: Request, res: Response, next: NextFunction) {
     const testId = req.params.testId;
-    const readingTestStageId = req.params.stageId;
+    const readingTestId = req.params.readingTestId;
+    const stageNum = req.query.stageNumber?.toString() || Constants.ZERO;
     const ReadingTestService: IReadingTestService = this.readingTestServiceMap.get(testId) || this.practiceReadingTestService;
-    const result: PracticeReadingTestStageModel = await ReadingTestService.generateReadingTestStageQuestions(readingTestStageId);
+    const result: PracticeReadingTestStageModel = await ReadingTestService.createStage(readingTestId, stageNum);
     res.status(200).send(result);
   }
 
   @AsyncControllerHandle
-  async getNextAvailablReadingTestStages(req: Request, res: Response, next: NextFunction) {
+  async getReadingTestStageByStageNum(req: Request, res: Response, next: NextFunction) {
     const testId = req.params.testId;
     const readingTestId = req.params.readingTestId;
+    const stageNum = req.query.stageNumber?.toString() || Constants.ZERO;
     const ReadingTestService: IReadingTestService = this.readingTestServiceMap.get(testId) || this.practiceReadingTestService;
-    const result: Array<PracticeReadingTestStageModel> = await ReadingTestService.getNextAvailableReadingTestStages(readingTestId);
+    const result: PracticeReadingTestStageModel = await ReadingTestService.getReadingTestStageByStageNum(readingTestId, stageNum);
     res.status(200).send(result);
   }
 

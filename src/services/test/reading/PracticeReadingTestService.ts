@@ -1,3 +1,4 @@
+import ELCIELTSDataInvalidError from "../../../exception/ELCIELTSDataInvalidError";
 import ELCIELTSGPTError from "../../../exception/ELCIELTSGPTError";
 import IPracticeReadingTestRepository from "../../../repository/readingTest/practice/IPracticeReadingTestRepository";
 import IPracticeReadingTestStageQuestionRepository from "../../../repository/readingTest/practice/IPracticeReadingTestStageQuestionRepository";
@@ -20,6 +21,8 @@ class PracticeReadingTestService implements IReadingTestService {
   private practiceReadingTestStageRepository: IPracticeReadingTestStageRepository;
   private practiceReadingTestStageQuestionRepository: IPracticeReadingTestStageQuestionRepository;
   private textGeneratorService: ITextGeneratorService;
+  private textGenerationMap: Map<number, () => Promise<Array<string | null>>>;
+  private stageGenStatusMap: Map<number, string>;
 
   constructor(
     textGeneratorService: ITextGeneratorService,
@@ -31,35 +34,57 @@ class PracticeReadingTestService implements IReadingTestService {
     this.practiceReadingTestRepository = practiceReadingTestRepository;
     this.practiceReadingTestStageRepository = practiceReadingTestStageRepository;
     this.practiceReadingTestStageQuestionRepository = practiceReadingTestStageQuestionRepository;
+    this.textGenerationMap = new Map([
+      [1, this.textGeneratorService.generateReadingTestStageOneText.bind(this.textGeneratorService)],
+      [2, this.textGeneratorService.generateReadingTestStageTwoText.bind(this.textGeneratorService)],
+      [3, this.textGeneratorService.generateReadingTestStageThreeText.bind(this.textGeneratorService)],
+    ]);
+    this.stageGenStatusMap = new Map([
+      [1, TestStatus.READING_TEST_STAGE_ONE_GENERATED],
+      [2, TestStatus.READING_TEST_STAGE_TWO_GENERATED],
+      [3, TestStatus.READING_TEST_STAGE_THREE_GENERATED],
+    ]);
   }
 
   async createReadingTest(studentId: string): Promise<PracticeReadingTestModel> {
     CommonValidator.validateNotEmptyOrBlankString(studentId, "Student ID");
-    const practiceReadingTest: PracticeReadingTestModel = await this.practiceReadingTestRepository.createPracticeReadingTest(studentId);
-    const stageOne: PracticeReadingTestStageModel = await this.generateReadingTestStageOne(practiceReadingTest.practice_reading_test_id);
-    return await this.practiceReadingTestRepository.updateStatusById(practiceReadingTest.practice_reading_test_id, TestStatus.READING_TEST_STAGES_GENERATED);
+    return await this.practiceReadingTestRepository.createPracticeReadingTest(studentId);
   }
 
-  private async generateReadingTestStageOne(readingTestId: string): Promise<PracticeReadingTestStageModel> {
-    const generatedText: Array<string | null> = await this.textGeneratorService.generateReadingTestStageOneText();
-    console.log("Reading test Text generated");
+  async createStage(readingTestId: string, stageNum: string): Promise<PracticeReadingTestStageModel> {
+    CommonValidator.validateNotEmptyOrBlankString(readingTestId, "Reading Test ID");
+    const stageNumber: number = CommonValidator.validatePositiveNumberString(stageNum, "Reading Test Stage Number");
+    CommonValidator.validateValidPossibleNumberValue(stageNumber, [1, 2, 3], "Reading Test Stage Number");
+    const existingStages: Array<PracticeReadingTestStageModel> = await this.practiceReadingTestStageRepository.getByStageNumberAndId(readingTestId, stageNumber);
+    CommonValidator.arraySizeValidator(existingStages, 0, new ELCIELTSDataInvalidError(`Stage has created already for readingTestId: ${readingTestId} and stageNum: ${stageNum}`));
+
+    const stage: PracticeReadingTestStageModel = await this.generateReadingTestStageText(readingTestId, stageNumber);
+    const stageWithQuestions: PracticeReadingTestStageModel = await this.generateReadingTestStageQuestions(stage);
+    await this.practiceReadingTestRepository.updateStatusById(readingTestId, this.stageGenStatusMap.get(stageNumber) || "");
+    return stageWithQuestions;
+  }
+
+  private async generateReadingTestStageText(readingTestId: string, stageNum: number): Promise<PracticeReadingTestStageModel> {
+    const textGenFunction: () => Promise<Array<string | null>> = this.textGenerationMap.get(stageNum) || (() => Promise.resolve([null]));
+    const generatedText: Array<string | null> = await textGenFunction();
     const validatedGeneratedText: string = ChatGPTValidator.validateNotNullChatGPTResponse(generatedText[0]);
-    return this.practiceReadingTestStageRepository.create(readingTestId, validatedGeneratedText, 1);
+    return this.practiceReadingTestStageRepository.create(readingTestId, validatedGeneratedText, stageNum);
   }
 
-  async generateReadingTestStageQuestions(stageId: string): Promise<PracticeReadingTestStageModel> {
+  private async generateReadingTestStageQuestions(stage: PracticeReadingTestStageModel): Promise<PracticeReadingTestStageModel> {
     const incrementer: Incrementer = Incrementer.init();
-    const stage: PracticeReadingTestStageModel = await this.practiceReadingTestStageRepository.getByStageIdAndStatus(stageId, TestStageStatus.CREATED);
-    const generatedMcqQuestions: Array<string | null> = await this.textGeneratorService.generateReadingTestStageOneMcqQuestions(stage.generated_scenario_text, 7);
+    const generatedMcqQuestions: Array<string | null> = await this.textGeneratorService.generateReadingTestStageMcqQuestions(stage.generated_scenario_text, 7, stage.stg_number);
     console.log("Reading test MCQ questions generated");
-    const generatedSenCompletionQuestions: Array<string | null> = await this.textGeneratorService.generateReadingTestStageOneSentanceCompletionQuestions(
+    const generatedSenCompletionQuestions: Array<string | null> = await this.textGeneratorService.generateReadingTestStageSentanceCompletionQuestions(
       stage.generated_scenario_text,
-      6
+      6,
+      stage.stg_number
     );
     console.log("Reading test Sentence Completion questions generated");
     const data: Array<ReadingQuestionsCreateManyDataType> = [
       ...generatedMcqQuestions
         .filter((question) => question != null)
+        .map((question) => question?.replace(/\n{2,}/g, "\n"))
         .map((question) => {
           return {
             question_number: incrementer.incrementAndGet(),
@@ -71,6 +96,7 @@ class PracticeReadingTestService implements IReadingTestService {
         }),
       ...generatedSenCompletionQuestions
         .filter((question) => question != null)
+        .map((question) => question?.replace(/\n{2,}/g, "\n"))
         .map((question) => {
           return {
             question_number: incrementer.incrementAndGet(),
@@ -81,11 +107,17 @@ class PracticeReadingTestService implements IReadingTestService {
           };
         }),
     ];
-    const updateStage: PracticeReadingTestStageModel = await this.practiceReadingTestStageRepository.updateStatusById(stageId, TestStageStatus.QUESTIONS_GENERATED);
-    const savedQuestions: Array<PracticeReadingTestStageQuestionsModel> = await this.practiceReadingTestStageQuestionRepository.createMany(data, stageId);
+    const updateStage: PracticeReadingTestStageModel = await this.practiceReadingTestStageRepository.updateStatusById(
+      stage.practice_reading_test_stage_id,
+      TestStageStatus.QUESTIONS_GENERATED
+    );
+    const savedQuestions: Array<PracticeReadingTestStageQuestionsModel> = await this.practiceReadingTestStageQuestionRepository.createMany(
+      data,
+      stage.practice_reading_test_stage_id
+    );
     return {
       ...updateStage,
-      practice_reading_test_stage_questions: savedQuestions,
+      practice_reading_questions: savedQuestions,
     };
   }
 
@@ -96,9 +128,11 @@ class PracticeReadingTestService implements IReadingTestService {
     return await this.practiceReadingTestRepository.getAllByStudentId(studentId, pageNum, limitNum);
   }
 
-  async getNextAvailableReadingTestStages(readingTestId: string): Promise<Array<PracticeReadingTestStageModel>> {
+  async getReadingTestStageByStageNum(readingTestId: string, stageNum: string): Promise<PracticeReadingTestStageModel> {
     CommonValidator.validateNotEmptyOrBlankString(readingTestId, "Reading Test ID");
-    return await this.practiceReadingTestStageRepository.getAllByReadingTestId(readingTestId);
+    const stageNumber: number = CommonValidator.validatePositiveNumberString(stageNum, "Reading Test Stage Number");
+    CommonValidator.validateValidPossibleNumberValue(stageNumber, [1, 2, 3], "Reading Test Stage Number");
+    return await this.practiceReadingTestStageRepository.getWithQuestionsByStageAndTestId(readingTestId, stageNumber);
   }
 
   async getQuestionsByStageId(readingTestStageId: string): Promise<Array<PracticeReadingTestStageQuestionsModel>> {
@@ -108,14 +142,12 @@ class PracticeReadingTestService implements IReadingTestService {
 
   async getTestStageByStageId(testStageId: string): Promise<PracticeReadingTestStageModel> {
     CommonValidator.validateNotEmptyOrBlankString(testStageId, "Writing Test Stage Id");
-    return this.practiceReadingTestStageRepository.getByStageId(testStageId);
+    return this.practiceReadingTestStageRepository.getWithQuestionsByStageId(testStageId);
   }
 
   async evaluateTestStage(testId: string, testStageId: string, operation: string, payLoad: UpdateReadingTestStage): Promise<PracticeReadingTestStageModel> {
     const answerMap = CommonValidator.validateJsonString(payLoad.answerMap, "Answers");
-    console.log(answerMap);
     this.validateAnswerValue(answerMap);
-    console.log("here");
     CommonValidator.validateNotEmptyOrBlankString(testId, "Writing Test ID");
     CommonValidator.validateNotEmptyOrBlankString(testStageId, "Writing Test Stage Id");
     CommonValidator.validateParamInADefinedValues(operation, Object.values(TestOperations), "Operation");
@@ -140,7 +172,7 @@ class PracticeReadingTestService implements IReadingTestService {
       })
     );
 
-    return await this.practiceReadingTestStageRepository.updateStatusById(stage.practice_reading_test_stage_id, TestStageStatus.EVALUATED);
+    return await this.practiceReadingTestStageRepository.updateStatusByIdAndGetWithQuestions(stage.practice_reading_test_stage_id, TestStageStatus.EVALUATED);
   }
 
   private validateAnswerValue(answerMap: Map<string, string>) {
