@@ -102,7 +102,7 @@ export interface PracticeReadingTestStageModel {
   created_time: Date;
   last_modified_time: Date;
   practice_reading_test_id: string;
-  practice_reading_test_stage_questions?: Array<PracticeReadingTestStageQuestionsModel>;
+  practice_reading_questions?: Array<PracticeReadingTestStageQuestionsModel>;
 }
 
 export interface PracticeReadingTestStageQuestionsModel {

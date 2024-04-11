@@ -7,4 +7,7 @@ export const Constants = {
   EMPTY_STR: "",
   CATEGORY_SEPERATOR: "category",
   QUESTION_SEPERATOR: "question",
+
+  //numbers
+  ZERO: "0",
 };

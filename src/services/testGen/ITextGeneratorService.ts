@@ -10,8 +10,10 @@ interface ITextGeneratorService {
 
   // reading test
   generateReadingTestStageOneText(): Promise<Array<string | null>>;
-  generateReadingTestStageOneMcqQuestions(text: string, numberOfQuestion: number): Promise<Array<string | null>>;
-  generateReadingTestStageOneSentanceCompletionQuestions(text: string, numberOfQuestion: number): Promise<Array<string | null>>;
+  generateReadingTestStageTwoText(): Promise<Array<string | null>>;
+  generateReadingTestStageThreeText(): Promise<Array<string | null>>;
+  generateReadingTestStageMcqQuestions(text: string, numberOfQuestion: number, taskNum: number): Promise<Array<string | null>>;
+  generateReadingTestStageSentanceCompletionQuestions(text: string, numberOfQuestion: number, taskNum: number): Promise<Array<string | null>>;
   evaluateReadingTestQuestions(text: string, question: string, answer: string): Promise<Array<string | null>>;
 }
 

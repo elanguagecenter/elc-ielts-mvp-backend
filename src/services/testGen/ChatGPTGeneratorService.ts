@@ -62,14 +62,30 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
 
   async generateReadingTestStageOneText(): Promise<Array<string | null>> {
     const context: string = OpenAIUtils.getRandomContextValue(Contexts.ReadingTestPart1);
-    console.log(`Reading part 2 Context to br generated: ${context}`);
+    console.log(`Reading part 1 Context to be generated: ${context}`);
     const content: string = GptPrompts.StageOneReadingTestTextGenerationPrompt(context);
     const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
     return await this.invokeOpenApi(messages, 1, "Reading", 1, "generation");
   }
 
-  async generateReadingTestStageOneMcqQuestions(text: string, numberOfQuestion: number): Promise<Array<string | null>> {
-    const systemPrompt: string = GptPrompts.StageOneReadingTestQuestionSystemPrompt();
+  async generateReadingTestStageTwoText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ReadingTestPart2And3);
+    console.log(`Reading part 2 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageTwoReadingTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Reading", 2, "generation");
+  }
+
+  async generateReadingTestStageThreeText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ReadingTestPart2And3);
+    console.log(`Reading part 3 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageThreeReadingTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Reading", 3, "generation");
+  }
+
+  async generateReadingTestStageMcqQuestions(text: string, numberOfQuestion: number, taskNum: number): Promise<Array<string | null>> {
+    const systemPrompt: string = GptPrompts.ReadingTestQuestionGenerationSystemPrompt(taskNum);
     const mcqGenPrompt: string = GptPrompts.ReadingTestMcqQuestionGenerationPrompt();
 
     const messages: Array<ChatCompletionMessageParam> = [
@@ -80,8 +96,8 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
     return await this.invokeOpenApi(messages, numberOfQuestion, "Reading", 1, "question generation");
   }
 
-  async generateReadingTestStageOneSentanceCompletionQuestions(text: string, numberOfQuestion: number): Promise<Array<string | null>> {
-    const systemPrompt: string = GptPrompts.StageOneReadingTestQuestionSystemPrompt();
+  async generateReadingTestStageSentanceCompletionQuestions(text: string, numberOfQuestion: number, taskNum: number): Promise<Array<string | null>> {
+    const systemPrompt: string = GptPrompts.ReadingTestQuestionGenerationSystemPrompt(taskNum);
     const senCompletionGenPrompt: string = GptPrompts.ReadingTestSentenceCompletionQuestionGenerationPrompt();
 
     const messages: Array<ChatCompletionMessageParam> = [
@@ -107,7 +123,7 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
   private async invokeOpenApi(messages: Array<ChatCompletionMessageParam>, itteration: number, testType: string, stage: number, promptType: string): Promise<Array<string | null>> {
     return await this.openai.chat.completions
       .create({
-        model: "gpt-4",
+        model: "gpt-4-turbo",
         n: itteration,
         temperature: 1.2,
         messages: messages,
@@ -115,7 +131,8 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
       .then((completion) => {
         return completion.choices.map((choice) => choice.message.content);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         throw new ELCIELTSGPTError(`Error happened in ${testType} stage ${stage} ${promptType}`);
       });
   }
