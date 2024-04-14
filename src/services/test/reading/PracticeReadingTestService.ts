@@ -157,7 +157,7 @@ class PracticeReadingTestService implements IReadingTestService {
       updatedQuestions.map(async (question) => {
         return {
           questionId: question.practice_reading_question_id,
-          result: await this.textGeneratorService.evaluateReadingTestQuestions(stage.generated_scenario_text, question.generated_question, question.submitted_anser!),
+          result: await this.textGeneratorService.evaluateReadingTestQuestions(stage.generated_scenario_text, question.generated_question, question.submitted_answer!),
         };
       })
     );
