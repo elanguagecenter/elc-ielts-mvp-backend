@@ -18,6 +18,8 @@ const GptPrompts = {
     return `You are an English language expert who creates IELTS General Training writing exam task 2 questions. Generate a Essay Task for IELTS General Training Writing Test task 2  in the context of '${context}' which is more similar to a real exam. Provide the question without any additional headings`;
   },
 
+  /*------ Reading Test Prompts ----------------------------------------------------------------------------------------------------------------------------------- */
+
   StageOneReadingTestTextGenerationPrompt: (context: string) => {
     return `
     You are an English language expert who creates IELTS General Training reading exam task 1 questions. Generate a real scenario text for task 1 with real-world information for the IELTS General Training Reading Test by applying the following constraints
@@ -78,6 +80,43 @@ const GptPrompts = {
     return `Question: '${question}'
             Answer: '${answer}.'`;
   },
+  /*--------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+
+  /*------ Listening Test Prompts --------------------------------------------------------------------------------------------------------------------------------- */
+  StageOneListeningTestTextGenerationPrompt: (context: string) => {
+    return `
+    You are an English language expert who creates IELTS General Training listening exam task 1 questions. Generate a real conversation text for task 1 between two persons with real-world information for the IELTS General Training Listening Test by applying the following constraints
+      1 - conversation must be at least 600 words long
+      2 - Indicate Each person in conversation only with a number assigned to him or her
+      3 - The context for the conversation should be '${context}'
+      4 - You should give the conversation only, not any extra text, prefixes or suffixes at the end and start of the conversation
+      5 - each person line should beging in a new line and must be in format of - 'personNumber: personText'
+    `;
+  },
+
+  StageTwoListeningTestTextGenerationPrompt: (context: string) => {
+    return `
+    You are an English language expert who creates IELTS General Training reading exam task 2. Generate a real scenario text for task 2 with real-world information for the IELTS General Training Reading Test by applying the following constraints
+      1 - Give me the text only, no questions
+      2 - The context of the text should be '${context}'
+      3 - Text must not contain any placeholders
+      4 - The word count of the text should be more than 300
+      5 - Give a suitable topic for the text as well
+    `;
+  },
+
+  StageThreeListeningTestTextGenerationPrompt: (context: string) => {
+    return `
+    You are an English language expert who creates IELTS General Training reading exam task 3. Generate a real scenario text for task 3 with real-world information for the IELTS General Training Reading Test by applying the following constraints
+      1 - Give me the text only, no questions
+      2 - The context of the text should be '${context}'
+      3 - Text must not contain any placeholders
+      4 - The word count of the text should be more than 350
+      5 - Give a suitable topic for the text as well
+    `;
+  },
+
+  /*--------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
   // StageOneReadingTestQuestionGenerationPrompt: (text: string, categories: Array<string>) => {
   //   return `
