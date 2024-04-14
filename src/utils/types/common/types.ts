@@ -40,3 +40,11 @@ export interface ReadingQuestionsCreateManyDataType {
   type: string;
   status: string;
 }
+
+export interface ListeningQuestionsCreateManyDataType {
+  practice_listening_test_stage_id: string;
+  generated_question: string;
+  question_number: number;
+  type: string;
+  status: string;
+}
