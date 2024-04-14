@@ -8,13 +8,18 @@ interface ITextGeneratorService {
   generateWritingTestStage2(): Promise<Array<string | null>>;
   evaluateWritingTestStage(question: string, answer: string, testStage: number): Promise<Array<string | null>>;
 
-  // reading test
+  /*---- Reading Test ---------------------------------------------------------------------------------------------------------------*/
   generateReadingTestStageOneText(): Promise<Array<string | null>>;
   generateReadingTestStageTwoText(): Promise<Array<string | null>>;
   generateReadingTestStageThreeText(): Promise<Array<string | null>>;
   generateReadingTestStageMcqQuestions(text: string, numberOfQuestion: number, taskNum: number): Promise<Array<string | null>>;
   generateReadingTestStageSentanceCompletionQuestions(text: string, numberOfQuestion: number, taskNum: number): Promise<Array<string | null>>;
   evaluateReadingTestQuestions(text: string, question: string, answer: string): Promise<Array<string | null>>;
+  /*--------------------------------------------------------------------------------------------------------------------------------*/
+
+  /*---- Listening Test ------------------------------------------------------------------------------------------------------------*/
+  generateListeningTestStageOneText(): Promise<Array<string | null>>;
+  /*--------------------------------------------------------------------------------------------------------------------------------*/
 }
 
 export default ITextGeneratorService;

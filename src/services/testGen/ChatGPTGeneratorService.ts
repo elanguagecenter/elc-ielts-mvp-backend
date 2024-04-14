@@ -5,15 +5,13 @@ import Contexts from "../../utils/openai/context.json";
 import OpenAIUtils from "../../utils/openai/OpenAIUtils";
 import ELCIELTSGPTError from "../../exception/ELCIELTSGPTError";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-import configs from "../../config/configs";
+import OpenAISource from "../../config/OpenAIConfig";
 
 class ChatGPTGeneratorService implements ITextGeneratorService {
   private openai: OpenAI;
   private static instance: ChatGPTGeneratorService = new ChatGPTGeneratorService();
   private constructor() {
-    this.openai = new OpenAI({
-      apiKey: configs.openAIAPIKey,
-    });
+    this.openai = OpenAISource;
   }
 
   static getInstance(): ChatGPTGeneratorService {
@@ -59,6 +57,8 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
     ];
     return await this.invokeOpenApi(messages, 1, "Writing", 2, "evaluation");
   }
+
+  /*---- Reading Test ---------------------------------------------------------------------------------------------------------------*/
 
   async generateReadingTestStageOneText(): Promise<Array<string | null>> {
     const context: string = OpenAIUtils.getRandomContextValue(Contexts.ReadingTestPart1);
@@ -119,6 +119,20 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
     ];
     return await this.invokeOpenApi(messages, 1, "Reading", 1, "question generation");
   }
+
+  /*--------------------------------------------------------------------------------------------------------------------------------*/
+
+  /*---- Listening Test ------------------------------------------------------------------------------------------------------------*/
+
+  async generateListeningTestStageOneText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ListeningTestPartOne);
+    console.log(`Listening part 1 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageOneListeningTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Listening", 1, "generation");
+  }
+
+  /*--------------------------------------------------------------------------------------------------------------------------------*/
 
   private async invokeOpenApi(messages: Array<ChatCompletionMessageParam>, itteration: number, testType: string, stage: number, promptType: string): Promise<Array<string | null>> {
     return await this.openai.chat.completions
