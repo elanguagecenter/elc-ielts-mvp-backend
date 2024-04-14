@@ -11,6 +11,7 @@ import speakingTestRoute from "./routes/SpeakingTestRoute";
 import MediaSockServer from "./MediaSockServer";
 import writingTestRoute from "./routes/WritingTestRoute";
 import readingTestRoute from "./routes/ReadingTestRoute";
+import listeningTestRoute from "./routes/ListeningTestRoute";
 
 const app: Express = express();
 const server: http.Server = http.createServer(app);
@@ -29,6 +30,7 @@ app.use("/healthcheck", healthCheckRouter);
 app.use("/ielts/test/:testId/speaking", speakingTestRoute);
 app.use("/ielts/test/:testId/writing", writingTestRoute);
 app.use("/ielts/test/:testId/reading", readingTestRoute);
+app.use("/ielts/test/:testId/listening", listeningTestRoute);
 app.use("/ielts/test", testRoute);
 
 /* Global middlewares
