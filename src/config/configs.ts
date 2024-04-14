@@ -6,6 +6,7 @@ const configs = {
   ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
   mediaOutBasepath: process.env.MEDIA_OUT_BASEPATH || "./",
   openAIAPIKey: process.env.CHAT_GPT_APIKEY,
+  listeningAudioOutBasePath: process.env.LISTENING_AUDIO_OUT_BASE_PATH || "./",
 };
 
 export default configs;
