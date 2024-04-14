@@ -39,17 +39,18 @@ model admin {
 }
 
 model student {
-  student_id              String                   @id @default(uuid())
-  student_email           String                   @db.VarChar(50)
-  student_mobile_number   String                   @db.VarChar(15)
-  created_time            DateTime                 @default(now())
-  last_modified_time      DateTime                 @updatedAt
-  org                     organization             @relation(fields: [org_id], references: [org_id])
-  org_id                  String
-  tests                   test[]
-  practice_speaking_tests practice_speaking_test[]
-  practice_writing_tests  practice_writing_test[]
-  practice_reading_test   practice_reading_test[]
+  student_id               String                    @id @default(uuid())
+  student_email            String                    @db.VarChar(50)
+  student_mobile_number    String                    @db.VarChar(15)
+  created_time             DateTime                  @default(now())
+  last_modified_time       DateTime                  @updatedAt
+  org                      organization              @relation(fields: [org_id], references: [org_id])
+  org_id                   String
+  tests                    test[]
+  practice_speaking_tests  practice_speaking_test[]
+  practice_writing_tests   practice_writing_test[]
+  practice_reading_tests   practice_reading_test[]
+  practice_listening_tests practice_listening_test[]
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//
@@ -355,7 +356,7 @@ model practice_reading_question {
   practice_reading_question_id   String                      @id @default(uuid())
   question_number                Int
   generated_question             String
-  submitted_anser                String?
+  submitted_answer               String?
   evaluated_result               String?
   status                         String                      @db.VarChar(50)
   type                           String                      @db.VarChar(20)
@@ -416,6 +417,59 @@ model listening_question {
   last_modified_time      DateTime             @updatedAt
   listening_test_stage    listening_test_stage @relation(fields: [listening_test_stage_id], references: [listening_test_stage_id])
   listening_test_stage_id String
+}
+
+//* -------------------------------------------------------------------------------------------------------- *//
+
+//* -------------------------------------------------------------------------------------------------------- *//
+//* Practice Reading Test Related Models *//
+//* -------------------------------------------------------------------------------------------------------- *//
+
+model practice_listening_test {
+  practice_listening_test_id       String                           @id @default(uuid())
+  index                            Int                              @default(autoincrement())
+  current_status                   String                           @db.VarChar(50)
+  created_time                     DateTime                         @default(now())
+  last_modified_time               DateTime                         @updatedAt
+  student                          student                          @relation(fields: [student_id], references: [student_id])
+  student_id                       String
+  practice_listening_test_statuses practice_listening_test_status[]
+  practice_listening_test_stages   practice_listening_test_stage[]
+}
+
+model practice_listening_test_status {
+  practice_listening_test_status_id String                  @id @default(uuid())
+  status                            String                  @db.VarChar(50)
+  created_time                      DateTime                @default(now())
+  last_modified_time                DateTime                @updatedAt
+  practice_listening_test           practice_listening_test @relation(fields: [practice_listening_test_id], references: [practice_listening_test_id])
+  practice_listening_test_id        String
+}
+
+model practice_listening_test_stage {
+  practice_listening_test_stage_id        String                                   @id @default(uuid())
+  stg_number                              Int
+  generated_scenario_text                 String
+  status                                  String                                   @db.VarChar(50)
+  created_time                            DateTime                                 @default(now())
+  last_modified_time                      DateTime                                 @updatedAt
+  practice_listening_test                 practice_listening_test                  @relation(fields: [practice_listening_test_id], references: [practice_listening_test_id])
+  practice_listening_test_id              String
+  practice_listening_test_stage_questions practice_listening_test_stage_question[]
+}
+
+model practice_listening_test_stage_question {
+  practice_listening_test_stage_question_id String                        @id @default(uuid())
+  question_number                           Int
+  generated_question                        String
+  submitted_answer                          String?
+  evaluated_result                          String?
+  status                                    String                        @db.VarChar(20)
+  type                                      String                        @db.VarChar(50)
+  created_time                              DateTime                      @default(now())
+  last_modified_time                        DateTime                      @updatedAt
+  practice_listening_test_stage             practice_listening_test_stage @relation(fields: [practice_listening_test_stage_id], references: [practice_listening_test_stage_id])
+  practice_listening_test_stage_id          String
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//
