@@ -78,6 +78,19 @@ class PrismaPracticeListeningTestStageRepository implements IPracticeListeningTe
   }
 
   @Handle
+  async updateAudioUrlAndStatusById(stageId: string, status: string, audioUrl: string): Promise<PracticeListeningTestStageModel> {
+    return await prisma.practice_listening_test_stage.update({
+      where: {
+        practice_listening_test_stage_id: stageId,
+      },
+      data: {
+        generated_audio_path: audioUrl,
+        status: status,
+      },
+    });
+  }
+
+  @Handle
   async updateStatusByIdAndGetWithQuestions(stageId: string, status: string): Promise<PracticeListeningTestStageModel> {
     return await prisma.practice_listening_test_stage.update({
       where: {

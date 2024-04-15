@@ -1,5 +1,5 @@
-interface IFIleService {
-  writeBufferArrayToFile(data: Array<Buffer>, outputFile: string): void;
+interface IFileService {
+  writeBufferArrayToFile(data: Array<Buffer>, outputFile: string): Promise<string>;
 }
 
-export default IFIleService;
+export default IFileService;

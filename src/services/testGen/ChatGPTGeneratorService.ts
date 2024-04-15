@@ -132,6 +132,54 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
     return await this.invokeOpenApi(messages, 1, "Listening", 1, "generation");
   }
 
+  async generateListeningTestStageTwoText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ListeningTestPartTwo);
+    console.log(`Listening part 2 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageTwoListeningTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Listening", 2, "generation");
+  }
+
+  async generateListeningTestStageThreeText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ListeningTestPartThree);
+    console.log(`Listening part 3 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageThreeListeningTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Listening", 3, "generation");
+  }
+
+  async generateListeningTestStageFourText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ListeningTestPartFour);
+    console.log(`Listening part 3 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageFourListeningTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Listening", 3, "generation");
+  }
+
+  async generateListeningTestStageMcqQuestions(text: string, numberOfQuestion: number, taskNum: number, textType: string): Promise<Array<string | null>> {
+    const systemPrompt: string = GptPrompts.ListeningTestQuestionGenerationSystemPrompt(taskNum, textType);
+    const mcqGenPrompt: string = GptPrompts.ListeningTestMcqQuestionGenerationPrompt(textType);
+
+    const messages: Array<ChatCompletionMessageParam> = [
+      { role: "system", content: systemPrompt },
+      { role: "assistant", content: text },
+      { role: "user", content: mcqGenPrompt },
+    ];
+    return await this.invokeOpenApi(messages, numberOfQuestion, "Listening", 1, "question generation");
+  }
+
+  async generateListeningTestStageTrueFalseQuestions(text: string, numberOfQuestion: number, taskNum: number, textType: string): Promise<Array<string | null>> {
+    const systemPrompt: string = GptPrompts.ListeningTestQuestionGenerationSystemPrompt(taskNum, textType);
+    const trueFalseGenPrompt: string = GptPrompts.ListeningTestTrueFalseQuestionGenerationPrompt(textType);
+
+    const messages: Array<ChatCompletionMessageParam> = [
+      { role: "system", content: systemPrompt },
+      { role: "assistant", content: text },
+      { role: "user", content: trueFalseGenPrompt },
+    ];
+    return await this.invokeOpenApi(messages, numberOfQuestion, "Listening", 1, "question generation");
+  }
+
   /*--------------------------------------------------------------------------------------------------------------------------------*/
 
   private async invokeOpenApi(messages: Array<ChatCompletionMessageParam>, itteration: number, testType: string, stage: number, promptType: string): Promise<Array<string | null>> {

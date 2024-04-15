@@ -1,12 +1,14 @@
 interface ITextGeneratorService {
-  // speaking test
+  /*---- Speaking Test ------------------------------------------------------------------------------------------------------------*/
   generateSpeakingTestStage2(): Promise<Array<string | null>>;
   generateSpeakingTestStage3(previousGeneratedText: string): Promise<Array<string | null>>;
+  /*--------------------------------------------------------------------------------------------------------------------------------*/
 
-  // writing test
+  /*---- Writing Test ------------------------------------------------------------------------------------------------------------*/
   generateWritingTestStage1(): Promise<Array<string | null>>;
   generateWritingTestStage2(): Promise<Array<string | null>>;
   evaluateWritingTestStage(question: string, answer: string, testStage: number): Promise<Array<string | null>>;
+  /*--------------------------------------------------------------------------------------------------------------------------------*/
 
   /*---- Reading Test ---------------------------------------------------------------------------------------------------------------*/
   generateReadingTestStageOneText(): Promise<Array<string | null>>;
@@ -19,6 +21,11 @@ interface ITextGeneratorService {
 
   /*---- Listening Test ------------------------------------------------------------------------------------------------------------*/
   generateListeningTestStageOneText(): Promise<Array<string | null>>;
+  generateListeningTestStageTwoText(): Promise<Array<string | null>>;
+  generateListeningTestStageThreeText(): Promise<Array<string | null>>;
+  generateListeningTestStageFourText(): Promise<Array<string | null>>;
+  generateListeningTestStageMcqQuestions(text: string, numberOfQuestion: number, taskNum: number, textType: string): Promise<Array<string | null>>;
+  generateListeningTestStageTrueFalseQuestions(text: string, numberOfQuestion: number, taskNum: number, textType: string): Promise<Array<string | null>>;
   /*--------------------------------------------------------------------------------------------------------------------------------*/
 }
 

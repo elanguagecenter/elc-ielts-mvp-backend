@@ -9,7 +9,9 @@ import ChatGPTGeneratorService from "../services/testGen/ChatGPTGeneratorService
 import OpenAIVoiceGeneratorService from "../services/voiceGen/OpenAIVoiceGeneratorService";
 import AsyncControllerHandle from "../utils/decorators/AsyncControllerErrorDecorator";
 import { Constants } from "../utils/types/common/constants";
-import { PracticeListeningTestModel, PracticeListeningTestStageModel } from "../utils/types/dbtypes/models";
+import { PracticeListeningTestModel, PracticeListeningTestStageModel, PracticeListeningTestStageQuestionsModel } from "../utils/types/dbtypes/models";
+import S3FileService from "../services/fileService/S3FileService";
+import { UpdateListeningTestStage } from "../utils/types/test/IELTSTestTypes";
 
 class ListeningTestController {
   private listeningTestServiceMap: Map<string, IListeningTestService>;
@@ -19,7 +21,7 @@ class ListeningTestController {
     this.practiceListeningTestService = new PracticeListeningTestService(
       ChatGPTGeneratorService.getInstance(),
       OpenAIVoiceGeneratorService.getInstance(),
-      FSFileService.getInstance(),
+      S3FileService.getInstance(),
       PrismaPracticeListeningTestRepository.getInstance(),
       PrismaPracticeListeningTestStageRepository.getInstance(),
       PrismaPracticeListeningTestStageQuestionRepository.getInstance()
@@ -43,6 +45,59 @@ class ListeningTestController {
     const listeningTestService: IListeningTestService = this.listeningTestServiceMap.get(testId) || this.practiceListeningTestService;
     const result: PracticeListeningTestStageModel = await listeningTestService.createStage(listeningTestId, stageNum);
     res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
+  async getAllListeningTestsByTestIdOrUserId(req: Request, res: Response, next: NextFunction) {
+    const testId = req.params.testId;
+    const limit = req.query.limit?.toString() || Constants.DEFAULT_PAGE_LIMIT;
+    const page = req.query.page?.toString() || Constants.DEAULT_PAGE_NUM;
+    const listeningTestService: IListeningTestService = this.listeningTestServiceMap.get(testId) || this.practiceListeningTestService;
+    const result: PracticeListeningTestStageModel = await listeningTestService.getAllListeningTestsByReleventId(
+      testId == Constants.PRACTICE_ROUTE ? req.userData.userId : testId,
+      page,
+      limit
+    );
+    res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
+  async getListeningTestStageByStageNum(req: Request, res: Response, next: NextFunction) {
+    const testId = req.params.testId;
+    const listeningTestId = req.params.listeningTestId;
+    const stageNum = req.query.stageNumber?.toString() || Constants.ZERO;
+    const listeningTestService: IListeningTestService = this.listeningTestServiceMap.get(testId) || this.practiceListeningTestService;
+    const result: PracticeListeningTestStageModel = await listeningTestService.getListeningTestStageByStageNum(listeningTestId, stageNum);
+    res.status(200).send(result);
+  }
+
+  async getTestStageByStageId(req: Request, res: Response, next: NextFunction) {
+    const testId = req.params.testId;
+    const listeningTestStageId = req.params.stageId;
+    const listeningTestService: IListeningTestService = this.listeningTestServiceMap.get(testId) || this.practiceListeningTestService;
+    const updatedStage: PracticeListeningTestStageModel = await listeningTestService.getTestStageByStageId(listeningTestStageId);
+    res.status(200).send(updatedStage);
+  }
+
+  @AsyncControllerHandle
+  async getQuestionsForListeningTestStage(req: Request, res: Response, next: NextFunction) {
+    const testId = req.params.testId;
+    const listeningTestStageId = req.params.stageId;
+    const listeningTestService: IListeningTestService = this.listeningTestServiceMap.get(testId) || this.practiceListeningTestService;
+    const result: Array<PracticeListeningTestStageQuestionsModel> = await listeningTestService.getQuestionsByStageId(listeningTestStageId);
+    res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
+  async updateTestStage(req: Request, res: Response, next: NextFunction) {
+    const testId = req.params.testId;
+    const listeningTestId = req.params.listeningTestId;
+    const stageId = req.params.stageId;
+    const operation = req.query.operation?.toString() || Constants.EMPTY_STR;
+    const payLoad: UpdateListeningTestStage = req.body;
+    const listeningTestService: IListeningTestService = this.listeningTestServiceMap.get(testId) || this.practiceListeningTestService;
+    const updatedStage: PracticeListeningTestStageModel = await listeningTestService.evaluateTestStage(listeningTestId, stageId, operation, payLoad);
+    res.status(200).send(updatedStage);
   }
 }
 

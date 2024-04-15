@@ -1,21 +1,24 @@
 import configs from "../../config/configs";
-import IFIleService from "./IFileService";
+import IFileService from "./IFileService";
 import fs from "fs";
 
-class FSFileService implements IFIleService {
-  private static instance: IFIleService = new FSFileService();
+class FSFileService implements IFileService {
+  private static instance: IFileService = new FSFileService();
 
-  static getInstance(): IFIleService {
+  static getInstance(): IFileService {
     return this.instance;
   }
 
-  writeBufferArrayToFile(data: Array<Buffer>, outputFile: string): void {
+  private constructor() {}
+
+  async writeBufferArrayToFile(data: Array<Buffer>, outputFile: string): Promise<string> {
     const writeStream: fs.WriteStream = fs.createWriteStream(`${configs.listeningAudioOutBasePath}/${outputFile}`, { flags: "a" });
     data.forEach((line) => {
       writeStream.write(line);
       writeStream.write(Buffer.alloc(1 * 44100 * 2));
     });
     writeStream.end();
+    return "local";
   }
 }
 
