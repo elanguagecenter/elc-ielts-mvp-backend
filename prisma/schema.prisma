@@ -450,6 +450,7 @@ model practice_listening_test_stage {
   practice_listening_test_stage_id        String                                   @id @default(uuid())
   stg_number                              Int
   generated_scenario_text                 String
+  generated_audio_path                    String?
   status                                  String                                   @db.VarChar(50)
   created_time                            DateTime                                 @default(now())
   last_modified_time                      DateTime                                 @updatedAt
