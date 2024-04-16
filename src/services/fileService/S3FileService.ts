@@ -4,6 +4,7 @@ import { PassThrough, Transform } from "stream";
 import configs from "../../config/configs";
 import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 import { Upload } from "@aws-sdk/lib-storage";
+import s3Client from "../../config/S3ClientConfig";
 
 class S3FileService implements IFileService {
   private static instance: IFileService = new S3FileService();
@@ -14,7 +15,7 @@ class S3FileService implements IFileService {
   }
 
   private constructor() {
-    this.s3Client = new S3Client({ region: configs.aws_region });
+    this.s3Client = s3Client;
   }
 
   async writeBufferArrayToFile(data: Buffer[], outputFile: string): Promise<string> {
