@@ -48,3 +48,7 @@ export interface ListeningQuestionsCreateManyDataType {
   type: string;
   status: string;
 }
+
+export interface GetS3SignedUrlResponse {
+  signedUrl: string;
+}
