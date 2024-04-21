@@ -137,6 +137,7 @@ export interface PracticeListeningTestStageModel {
   practice_listening_test_stage_id: string;
   stg_number: number;
   generated_scenario_text: string;
+  generated_audio_path: string | null;
   status: string;
   created_time: Date;
   last_modified_time: Date;

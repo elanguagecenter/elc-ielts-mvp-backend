@@ -26,6 +26,7 @@ interface ITextGeneratorService {
   generateListeningTestStageFourText(): Promise<Array<string | null>>;
   generateListeningTestStageMcqQuestions(text: string, numberOfQuestion: number, taskNum: number, textType: string): Promise<Array<string | null>>;
   generateListeningTestStageTrueFalseQuestions(text: string, numberOfQuestion: number, taskNum: number, textType: string): Promise<Array<string | null>>;
+  evaluateListeningTestQuestions(text: string, question: string, answer: string, questionType: string): Promise<Array<string | null>>;
   /*--------------------------------------------------------------------------------------------------------------------------------*/
 }
 

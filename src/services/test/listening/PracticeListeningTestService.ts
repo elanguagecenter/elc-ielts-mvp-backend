@@ -4,7 +4,7 @@ import IPracticeListeningTestRepository from "../../../repository/listeningTest/
 import IPracticeListeningTestStageQuestionRepository from "../../../repository/listeningTest/practice/IPracticeListeningTestStageQuestionRepository";
 import IPracticeListeningTestStageRepository from "../../../repository/listeningTest/practice/IPracticeListeningTestStageRepository";
 import Incrementer from "../../../utils/common/Incrementer";
-import { ListeningTestTextTypes, QuestionStatus, TestQuestionTypes, TestStageStatus, TestStatus } from "../../../utils/types/common/common";
+import { ListeningTestTextTypes, QuestionStatus, TestOperations, TestQuestionTypes, TestStageStatus, TestStatus } from "../../../utils/types/common/common";
 import { ListeningQuestionsCreateManyDataType } from "../../../utils/types/common/types";
 import { PracticeListeningTestModel, PracticeListeningTestStageModel, PracticeListeningTestStageQuestionsModel } from "../../../utils/types/dbtypes/models";
 import { UpdateListeningTestStage } from "../../../utils/types/test/IELTSTestTypes";
@@ -184,7 +184,7 @@ class PracticeListeningTestService implements IListeningTestService {
   async getListeningTestStageByStageNum(testId: string, stageNum: string): Promise<PracticeListeningTestStageModel> {
     CommonValidator.validateNotEmptyOrBlankString(testId, "Listening Test ID");
     const stageNumber: number = CommonValidator.validatePositiveNumberString(stageNum, "Listening Test Stage Number");
-    CommonValidator.validateValidPossibleNumberValue(stageNumber, [1, 2, 3], "Listening Test Stage Number");
+    CommonValidator.validateValidPossibleNumberValue(stageNumber, [1, 2, 3, 4], "Listening Test Stage Number");
     return await this.practiceListeningTestStageRepository.getWithQuestionsByStageAndTestId(testId, stageNumber);
   }
 
@@ -193,8 +193,38 @@ class PracticeListeningTestService implements IListeningTestService {
     return await this.practiceListeningTestStageQuestionRepository.getAllByStageId(stageId);
   }
 
-  evaluateTestStage(testId: string, stageId: string, operation: string, payLoad: UpdateListeningTestStage): Promise<PracticeListeningTestStageModel> {
-    throw new Error("Method not implemented.");
+  async evaluateTestStage(testId: string, stageId: string, operation: string, payLoad: UpdateListeningTestStage): Promise<PracticeListeningTestStageModel> {
+    const answerMap = CommonValidator.validateJsonString(payLoad.answerMap, "Answers");
+    CommonValidator.validateNotEmptyOrBlankString(testId, "Reading Test ID");
+    CommonValidator.validateNotEmptyOrBlankString(stageId, "Reading Test Stage Id");
+    CommonValidator.validateParamInADefinedValues(operation, Object.values(TestOperations), "Operation");
+    // TODO - add operation based processing since more operations can be added in
+    const stage: PracticeListeningTestStageModel = await this.practiceListeningTestStageRepository.checkAlreadyAnswered(stageId);
+    const updatedQuestions: Array<PracticeListeningTestStageQuestionsModel> = await Promise.all(
+      Array.from(answerMap.entries()).map((entry) => this.practiceListeningTestStageQuestionRepository.updateAnswer(entry[0], entry[1]))
+    );
+
+    const evaluatedResults = await Promise.all(
+      updatedQuestions.map(async (question) => {
+        return {
+          questionId: question.practice_listening_test_stage_question_id,
+          result: await this.textGeneratorService.evaluateListeningTestQuestions(
+            stage.generated_scenario_text,
+            question.generated_question,
+            question.submitted_answer!,
+            question.type
+          ),
+        };
+      })
+    );
+
+    await Promise.all(
+      evaluatedResults.map((result) => {
+        return this.practiceListeningTestStageQuestionRepository.updateResult(result.questionId, result.result[0] || "");
+      })
+    );
+
+    return await this.practiceListeningTestStageRepository.updateStatusByIdAndGetWithQuestions(stage.practice_listening_test_stage_id, TestStageStatus.EVALUATED);
   }
 }
 

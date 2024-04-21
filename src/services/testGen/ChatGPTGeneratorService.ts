@@ -6,12 +6,19 @@ import OpenAIUtils from "../../utils/openai/OpenAIUtils";
 import ELCIELTSGPTError from "../../exception/ELCIELTSGPTError";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import OpenAISource from "../../config/OpenAIConfig";
+import { TestQuestionTypes } from "../../utils/types/common/common";
+import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 
 class ChatGPTGeneratorService implements ITextGeneratorService {
   private openai: OpenAI;
   private static instance: ChatGPTGeneratorService = new ChatGPTGeneratorService();
+  private listeningTestEvaluationPromptMap: Map<string, () => string>;
   private constructor() {
     this.openai = OpenAISource;
+    this.listeningTestEvaluationPromptMap = new Map([
+      [TestQuestionTypes.MULTIPLE_CHOICE, GptPrompts.ListeningTestMCQQuestionEvaluationSystemPrompt],
+      [TestQuestionTypes.TRUE_FALSE, GptPrompts.ListeningTestTrueFlaseQuestionEvaluationSystemPrompt],
+    ]);
   }
 
   static getInstance(): ChatGPTGeneratorService {
@@ -180,6 +187,22 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
     return await this.invokeOpenApi(messages, numberOfQuestion, "Listening", 1, "question generation");
   }
 
+  async evaluateListeningTestQuestions(text: string, question: string, answer: string, questionType: string): Promise<Array<string | null>> {
+    const systemPromptFunction =
+      this.listeningTestEvaluationPromptMap.get(questionType) ||
+      (() => {
+        throw new ELCIELTSInternalError("LLM Prompt not found");
+      });
+    const systemPrompt: string = systemPromptFunction();
+    const evaluationPrompt: string = GptPrompts.ListeningTestQuestionEvaluationUserPrompt(question, answer);
+
+    const messages: Array<ChatCompletionMessageParam> = [
+      { role: "system", content: systemPrompt },
+      { role: "assistant", content: text },
+      { role: "user", content: evaluationPrompt },
+    ];
+    return await this.invokeOpenApi(messages, 1, "Reading", 1, "question generation");
+  }
   /*--------------------------------------------------------------------------------------------------------------------------------*/
 
   private async invokeOpenApi(messages: Array<ChatCompletionMessageParam>, itteration: number, testType: string, stage: number, promptType: string): Promise<Array<string | null>> {

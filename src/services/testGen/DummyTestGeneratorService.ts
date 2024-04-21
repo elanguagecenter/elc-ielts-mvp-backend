@@ -3,6 +3,10 @@ import ITextGeneratorService from "./ITextGeneratorService";
 class DummyTestGeneratorService implements ITextGeneratorService {
   private static instance: ITextGeneratorService = new DummyTestGeneratorService();
   private constructor() {}
+  evaluateListeningTestQuestions(text: string, question: string, answer: string): Promise<(string | null)[]> {
+    throw new Error("Method not implemented.");
+  }
+
   generateListeningTestStageFourText(): Promise<(string | null)[]> {
     throw new Error("Method not implemented.");
   }
