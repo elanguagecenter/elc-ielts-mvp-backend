@@ -6,6 +6,10 @@ const configs = {
   ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
   mediaOutBasepath: process.env.MEDIA_OUT_BASEPATH || "./",
   openAIAPIKey: process.env.CHAT_GPT_APIKEY,
+  listeningAudioOutBasePath: process.env.LISTENING_AUDIO_OUT_BASE_PATH || "./",
+  listeningAudioOutS3BasePath: process.env.LISTENING_AUDIO_OUT_S3_BASE_PATH || "",
+  aws_region: process.env.AWS_REGION || "ap-southeast-1",
+  bucket_name: process.env.S3_BUCKET_NAME || "elc-b2b-ielts-mvp-dev-local-bucket-bucket",
 };
 
 export default configs;

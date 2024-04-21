@@ -58,7 +58,7 @@ class PrismaPracticeReadingTestStageQuestionRepository implements IPracticeReadi
         practice_reading_question_id: questionId,
       },
       data: {
-        submitted_anser: answer,
+        submitted_answer: answer,
       },
     });
   }

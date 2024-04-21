@@ -3,7 +3,7 @@ import IPracticeReadingTestRepository from "../../../repository/readingTest/prac
 import IPracticeReadingTestStageQuestionRepository from "../../../repository/readingTest/practice/IPracticeReadingTestStageQuestionRepository";
 import IPracticeReadingTestStageRepository from "../../../repository/readingTest/practice/IPracticeReadingTestStageRepository";
 import Incrementer from "../../../utils/common/Incrementer";
-import { QuestionStatus, ReadingTestQuestionTypes, TestOperations, TestStageStatus, TestStatus } from "../../../utils/types/common/common";
+import { QuestionStatus, TestOperations, TestQuestionTypes, TestStageStatus, TestStatus } from "../../../utils/types/common/common";
 import { ReadingQuestionsCreateManyDataType } from "../../../utils/types/common/types";
 import { PracticeReadingTestModel, PracticeReadingTestStageModel, PracticeReadingTestStageQuestionsModel } from "../../../utils/types/dbtypes/models";
 import { UpdateReadingTestStage } from "../../../utils/types/test/IELTSTestTypes";
@@ -68,7 +68,7 @@ class PracticeReadingTestService implements IReadingTestService {
   }
 
   private async generateReadingTestStageQuestions(stage: PracticeReadingTestStageModel): Promise<PracticeReadingTestStageModel> {
-    const incrementer: Incrementer = Incrementer.init();
+    const incrementer: Incrementer = new Incrementer();
     const generatedMcqQuestions: Array<string | null> = await this.textGeneratorService.generateReadingTestStageMcqQuestions(stage.generated_scenario_text, 7, stage.stg_number);
     console.log("Reading test MCQ questions generated");
     const generatedSenCompletionQuestions: Array<string | null> = await this.textGeneratorService.generateReadingTestStageSentanceCompletionQuestions(
@@ -86,7 +86,7 @@ class PracticeReadingTestService implements IReadingTestService {
             question_number: incrementer.incrementAndGet(),
             generated_question: question!,
             practice_reading_test_stage_id: stage.practice_reading_test_stage_id,
-            type: ReadingTestQuestionTypes.MULTIPLE_CHOICE,
+            type: TestQuestionTypes.MULTIPLE_CHOICE,
             status: QuestionStatus.CREATED,
           };
         }),
@@ -98,7 +98,7 @@ class PracticeReadingTestService implements IReadingTestService {
             question_number: incrementer.incrementAndGet(),
             generated_question: question!,
             practice_reading_test_stage_id: stage.practice_reading_test_stage_id,
-            type: ReadingTestQuestionTypes.SENETENCE_COMPLETION,
+            type: TestQuestionTypes.SENETENCE_COMPLETION,
             status: QuestionStatus.CREATED,
           };
         }),
@@ -137,15 +137,15 @@ class PracticeReadingTestService implements IReadingTestService {
   }
 
   async getTestStageByStageId(testStageId: string): Promise<PracticeReadingTestStageModel> {
-    CommonValidator.validateNotEmptyOrBlankString(testStageId, "Writing Test Stage Id");
+    CommonValidator.validateNotEmptyOrBlankString(testStageId, "Reading Test Stage Id");
     return this.practiceReadingTestStageRepository.getWithQuestionsByStageId(testStageId);
   }
 
   async evaluateTestStage(testId: string, testStageId: string, operation: string, payLoad: UpdateReadingTestStage): Promise<PracticeReadingTestStageModel> {
     const answerMap = CommonValidator.validateJsonString(payLoad.answerMap, "Answers");
     this.validateAnswerValue(answerMap);
-    CommonValidator.validateNotEmptyOrBlankString(testId, "Writing Test ID");
-    CommonValidator.validateNotEmptyOrBlankString(testStageId, "Writing Test Stage Id");
+    CommonValidator.validateNotEmptyOrBlankString(testId, "Reading Test ID");
+    CommonValidator.validateNotEmptyOrBlankString(testStageId, "Reading Test Stage Id");
     CommonValidator.validateParamInADefinedValues(operation, Object.values(TestOperations), "Operation");
     // TODO - add operation based processing since more operations can be added in
     const stage: PracticeReadingTestStageModel = await this.practiceReadingTestStageRepository.checkAlreadyAnswered(testStageId);
@@ -157,7 +157,7 @@ class PracticeReadingTestService implements IReadingTestService {
       updatedQuestions.map(async (question) => {
         return {
           questionId: question.practice_reading_question_id,
-          result: await this.textGeneratorService.evaluateReadingTestQuestions(stage.generated_scenario_text, question.generated_question, question.submitted_anser!),
+          result: await this.textGeneratorService.evaluateReadingTestQuestions(stage.generated_scenario_text, question.generated_question, question.submitted_answer!),
         };
       })
     );

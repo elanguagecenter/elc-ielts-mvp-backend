@@ -37,8 +37,8 @@ class ReadingTestController {
     const testId = req.params.testId;
     const limit = req.query.limit?.toString() || Constants.DEFAULT_PAGE_LIMIT;
     const page = req.query.page?.toString() || Constants.DEAULT_PAGE_NUM;
-    const writingTestService: IReadingTestService = this.readingTestServiceMap.get(testId) || this.practiceReadingTestService;
-    const result: PracticeReadingTestModel = await writingTestService.getAllReadingTestsByReleventId(
+    const readingTestService: IReadingTestService = this.readingTestServiceMap.get(testId) || this.practiceReadingTestService;
+    const result: PracticeReadingTestModel = await readingTestService.getAllReadingTestsByReleventId(
       testId == Constants.PRACTICE_ROUTE ? req.userData.userId : testId,
       page,
       limit

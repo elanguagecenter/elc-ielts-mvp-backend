@@ -109,7 +109,7 @@ export interface PracticeReadingTestStageQuestionsModel {
   practice_reading_question_id: string;
   question_number: number;
   generated_question: string;
-  submitted_anser: string | null;
+  submitted_answer: string | null;
   evaluated_result: string | null;
   status: string;
   type: string;
@@ -117,4 +117,45 @@ export interface PracticeReadingTestStageQuestionsModel {
   last_modified_time: Date;
   practice_reading_test_stage_id: string;
 }
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ 
+ * Practice Listening
+/* ------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+export interface PracticeListeningTestModel {
+  practice_listening_test_id: string;
+  index: number;
+  current_status: string;
+  created_time: Date;
+  last_modified_time: Date;
+  student_id: string;
+  practice_listening_test_stages?: Array<PracticeListeningTestStageModel>;
+}
+
+export interface PracticeListeningTestStageModel {
+  practice_listening_test_stage_id: string;
+  stg_number: number;
+  generated_scenario_text: string;
+  generated_audio_path: string | null;
+  status: string;
+  created_time: Date;
+  last_modified_time: Date;
+  practice_listening_test_id: string;
+  practice_listening_test_stage_questions?: Array<PracticeListeningTestStageQuestionsModel>;
+}
+
+export interface PracticeListeningTestStageQuestionsModel {
+  practice_listening_test_stage_question_id: string;
+  question_number: number;
+  generated_question: string;
+  submitted_answer: string | null;
+  evaluated_result: string | null;
+  status: string;
+  type: string;
+  created_time: Date;
+  last_modified_time: Date;
+  practice_listening_test_stage_id: string;
+}
+
 /* ------------------------------------------------------------------------------------------------------------------------------------------------ */

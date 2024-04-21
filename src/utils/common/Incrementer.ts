@@ -1,15 +1,15 @@
 class Incrementer {
-  private static instance: Incrementer = new Incrementer();
   private value: number;
-  private constructor() {
+
+  constructor() {
     this.value = 0;
   }
-  static init(): Incrementer {
-    this.instance.value = 0;
-    return Incrementer.instance;
+
+  reset(toValue: number = 0): void {
+    this.value = toValue;
   }
 
-  incrementAndGet() {
+  incrementAndGet(): number {
     this.value = this.value + 1;
     return this.value;
   }

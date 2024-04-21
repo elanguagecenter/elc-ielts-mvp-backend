@@ -5,15 +5,20 @@ import Contexts from "../../utils/openai/context.json";
 import OpenAIUtils from "../../utils/openai/OpenAIUtils";
 import ELCIELTSGPTError from "../../exception/ELCIELTSGPTError";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-import configs from "../../config/configs";
+import OpenAISource from "../../config/OpenAIConfig";
+import { TestQuestionTypes } from "../../utils/types/common/common";
+import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 
 class ChatGPTGeneratorService implements ITextGeneratorService {
   private openai: OpenAI;
   private static instance: ChatGPTGeneratorService = new ChatGPTGeneratorService();
+  private listeningTestEvaluationPromptMap: Map<string, () => string>;
   private constructor() {
-    this.openai = new OpenAI({
-      apiKey: configs.openAIAPIKey,
-    });
+    this.openai = OpenAISource;
+    this.listeningTestEvaluationPromptMap = new Map([
+      [TestQuestionTypes.MULTIPLE_CHOICE, GptPrompts.ListeningTestMCQQuestionEvaluationSystemPrompt],
+      [TestQuestionTypes.TRUE_FALSE, GptPrompts.ListeningTestTrueFlaseQuestionEvaluationSystemPrompt],
+    ]);
   }
 
   static getInstance(): ChatGPTGeneratorService {
@@ -59,6 +64,8 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
     ];
     return await this.invokeOpenApi(messages, 1, "Writing", 2, "evaluation");
   }
+
+  /*---- Reading Test ---------------------------------------------------------------------------------------------------------------*/
 
   async generateReadingTestStageOneText(): Promise<Array<string | null>> {
     const context: string = OpenAIUtils.getRandomContextValue(Contexts.ReadingTestPart1);
@@ -119,6 +126,84 @@ class ChatGPTGeneratorService implements ITextGeneratorService {
     ];
     return await this.invokeOpenApi(messages, 1, "Reading", 1, "question generation");
   }
+
+  /*--------------------------------------------------------------------------------------------------------------------------------*/
+
+  /*---- Listening Test ------------------------------------------------------------------------------------------------------------*/
+
+  async generateListeningTestStageOneText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ListeningTestPartOne);
+    console.log(`Listening part 1 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageOneListeningTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Listening", 1, "generation");
+  }
+
+  async generateListeningTestStageTwoText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ListeningTestPartTwo);
+    console.log(`Listening part 2 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageTwoListeningTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Listening", 2, "generation");
+  }
+
+  async generateListeningTestStageThreeText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ListeningTestPartThree);
+    console.log(`Listening part 3 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageThreeListeningTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Listening", 3, "generation");
+  }
+
+  async generateListeningTestStageFourText(): Promise<Array<string | null>> {
+    const context: string = OpenAIUtils.getRandomContextValue(Contexts.ListeningTestPartFour);
+    console.log(`Listening part 3 Context to be generated: ${context}`);
+    const content: string = GptPrompts.StageFourListeningTestTextGenerationPrompt(context);
+    const messages: Array<ChatCompletionMessageParam> = [{ role: "system", content: content }];
+    return await this.invokeOpenApi(messages, 1, "Listening", 3, "generation");
+  }
+
+  async generateListeningTestStageMcqQuestions(text: string, numberOfQuestion: number, taskNum: number, textType: string): Promise<Array<string | null>> {
+    const systemPrompt: string = GptPrompts.ListeningTestQuestionGenerationSystemPrompt(taskNum, textType);
+    const mcqGenPrompt: string = GptPrompts.ListeningTestMcqQuestionGenerationPrompt(textType);
+
+    const messages: Array<ChatCompletionMessageParam> = [
+      { role: "system", content: systemPrompt },
+      { role: "assistant", content: text },
+      { role: "user", content: mcqGenPrompt },
+    ];
+    return await this.invokeOpenApi(messages, numberOfQuestion, "Listening", 1, "question generation");
+  }
+
+  async generateListeningTestStageTrueFalseQuestions(text: string, numberOfQuestion: number, taskNum: number, textType: string): Promise<Array<string | null>> {
+    const systemPrompt: string = GptPrompts.ListeningTestQuestionGenerationSystemPrompt(taskNum, textType);
+    const trueFalseGenPrompt: string = GptPrompts.ListeningTestTrueFalseQuestionGenerationPrompt(textType);
+
+    const messages: Array<ChatCompletionMessageParam> = [
+      { role: "system", content: systemPrompt },
+      { role: "assistant", content: text },
+      { role: "user", content: trueFalseGenPrompt },
+    ];
+    return await this.invokeOpenApi(messages, numberOfQuestion, "Listening", 1, "question generation");
+  }
+
+  async evaluateListeningTestQuestions(text: string, question: string, answer: string, questionType: string): Promise<Array<string | null>> {
+    const systemPromptFunction =
+      this.listeningTestEvaluationPromptMap.get(questionType) ||
+      (() => {
+        throw new ELCIELTSInternalError("LLM Prompt not found");
+      });
+    const systemPrompt: string = systemPromptFunction();
+    const evaluationPrompt: string = GptPrompts.ListeningTestQuestionEvaluationUserPrompt(question, answer);
+
+    const messages: Array<ChatCompletionMessageParam> = [
+      { role: "system", content: systemPrompt },
+      { role: "assistant", content: text },
+      { role: "user", content: evaluationPrompt },
+    ];
+    return await this.invokeOpenApi(messages, 1, "Reading", 1, "question generation");
+  }
+  /*--------------------------------------------------------------------------------------------------------------------------------*/
 
   private async invokeOpenApi(messages: Array<ChatCompletionMessageParam>, itteration: number, testType: string, stage: number, promptType: string): Promise<Array<string | null>> {
     return await this.openai.chat.completions
