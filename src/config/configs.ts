@@ -10,6 +10,8 @@ const configs = {
   listeningAudioOutS3BasePath: process.env.LISTENING_AUDIO_OUT_S3_BASE_PATH || "",
   aws_region: process.env.AWS_REGION || "ap-southeast-1",
   bucket_name: process.env.S3_BUCKET_NAME || "elc-b2b-ielts-mvp-dev-local-bucket-bucket",
+  cognito_client_id: process.env.COGNITO_CLIENT_ID || "",
+  cognito_client_secret: process.env.COGNITO_CLIENT_SECRET || "",
 };
 
 export default configs;
