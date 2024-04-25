@@ -9,9 +9,8 @@ COPY src/apiDocs/ ./src/apiDocs
 
 RUN mkdir media
 RUN mkdir media/output
-# RUN chmod -R 777 /usr/src/app
 
-RUN npm install --only=productioncan
+RUN npm install --only=production
 RUN npm install -g prisma
 RUN prisma generate
 

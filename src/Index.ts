@@ -13,6 +13,8 @@ import writingTestRoute from "./routes/WritingTestRoute";
 import readingTestRoute from "./routes/ReadingTestRoute";
 import listeningTestRoute from "./routes/ListeningTestRoute";
 import resourceRoute from "./routes/ResourceRoute";
+import authoute from "./routes/AuthRoute";
+import userRoute from "./routes/UserRoute";
 
 const app: Express = express();
 const server: http.Server = http.createServer(app);
@@ -28,6 +30,8 @@ app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Buisness logic routes
 app.use("/healthcheck", healthCheckRouter);
+app.use("/ielts/auth", authoute);
+app.use("/ielts/users", userRoute);
 app.use("/ielts/test/:testId/speaking", speakingTestRoute);
 app.use("/ielts/test/:testId/writing", writingTestRoute);
 app.use("/ielts/test/:testId/reading", readingTestRoute);
