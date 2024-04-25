@@ -84,3 +84,18 @@ export enum ListeningTestTextTypes {
   MONOLOUGE = "monologue",
   DIALOG = "dialog",
 }
+
+export enum CognitoChallanges {
+  NEW_PASSWORD_REQUIRED = "NEW_PASSWORD_REQUIRED",
+}
+
+export enum SigninResponseStatus {
+  AUTHENTICATED = "AUTHENTICATED",
+  NEW_PASSWORD_REQUIRED = "NEW_PASSWORD_REQUIRED",
+}
+
+export enum UserTypes {
+  STUDENT = "student",
+  ADMIN = "admin",
+  INSTRUCTOR = "instructor",
+}
