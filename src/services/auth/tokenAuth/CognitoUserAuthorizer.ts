@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import UserAuthorizer from "./UserAuthorizer";
 import jwt from "jsonwebtoken";
 import jwkToPem from "jwk-to-pem";
-import configs from "../../config/configs";
+import configs from "../../../config/configs";
 import jwkToBuffer from "jwk-to-pem";
-import ELCIELTSUnauthorizedError from "../../exception/ELCIELTSUnauthorizedError";
+import ELCIELTSUnauthorizedError from "../../../exception/ELCIELTSUnauthorizedError";
 
 class CognitoUserAuthorizer implements UserAuthorizer {
   private static instance = new CognitoUserAuthorizer();
