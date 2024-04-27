@@ -5,7 +5,8 @@ import {
   InitiateAuthCommand,
   InitiateAuthCommandInput,
   RespondToAuthChallengeCommandInput,
-  RespondToAuthChallengeCommandOutput,
+  GlobalSignOutCommand,
+  GlobalSignOutCommandOutput,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoChallangePayload, UserSigninPayload, UserSigninResponse } from "../../../utils/types/common/types";
 import ISigninService from "./ISigninService";
@@ -72,6 +73,12 @@ class CognitoSigninService implements ISigninService {
     CommonValidator.validateNotEmptyOrBlankString(payLoad.challangeName, "Challange Name");
     const challangeExecution = this.cognitoChallangeExecutionMap.get(payLoad.challangeName) || (() => Promise.reject(new ELCIELTSInternalError("Internal error")));
     return await challangeExecution(payLoad.userName, payLoad.newPassword, payLoad.cognitoSession);
+  }
+
+  async studentSignout(accessToken: string): Promise<GlobalSignOutCommandOutput> {
+    CommonValidator.validateNotEmptyOrBlankString(accessToken, "accessToken");
+    const command = new GlobalSignOutCommand({ AccessToken: accessToken });
+    return await this.cognitoClient.send(command);
   }
 
   private async completeNewPasswordRequiredChallange(userName: string, newPassword: string, cognitoSession: string): Promise<UserSigninResponse> {
