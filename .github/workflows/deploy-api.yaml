@@ -1,0 +1,42 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  id-token: write  
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Build project
+        run: npm run build
+     
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+            role-to-assume: ${{ vars.AWS_OPENID_CONNECT_ROLE_ARN }}
+            role-session-name: upload_function_session
+            aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to ecr
+        run: aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin ${{ vars.ECR_URL }} 
+      
+      - name: docker build
+        run: docker build -t elc-b2b-ielts-mvp-dev-api-image .
+      
+      - name: Tag image
+        run: docker tag elc-b2b-ielts-mvp-dev-api-image:latest ${{ vars.ECR_URL }}/elc-b2b-ielts-mvp-dev-api-image:latest
+
+      - name: docker push Image
+        run: docker push ${{ vars.ECR_URL }}/elc-b2b-ielts-mvp-dev-api-image:latest
