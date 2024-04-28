@@ -59,14 +59,15 @@ model student {
 }
 
 model teacher {
-  teacher_id            String       @id @default(uuid())
-  teacher_email         String       @db.VarChar(50)
-  teacher_name          String       @default("teacher") @db.VarChar(100)
-  teacher_mobile_number String       @db.VarChar(15)
-  created_time          DateTime     @default(now())
-  last_modified_time    DateTime     @updatedAt
-  org                   organization @relation(fields: [org_id], references: [org_id])
-  org_id                String
+  teacher_id              String                   @id @default(uuid())
+  teacher_email           String                   @db.VarChar(50)
+  teacher_name            String                   @default("teacher") @db.VarChar(100)
+  teacher_mobile_number   String                   @db.VarChar(15)
+  created_time            DateTime                 @default(now())
+  last_modified_time      DateTime                 @updatedAt
+  org                     organization             @relation(fields: [org_id], references: [org_id])
+  org_id                  String
+  practice_speaking_tests practice_speaking_test[]
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//
@@ -153,6 +154,8 @@ model practice_speaking_test {
   practice_speaking_test_stages   practice_speaking_test_stage[]
   student                         student                         @relation(fields: [student_id], references: [student_id])
   student_id                      String
+  evaluator                       teacher?                        @relation(fields: [evaluator_id], references: [teacher_id])
+  evaluator_id                    String?
 }
 
 model practice_speaking_test_status {
