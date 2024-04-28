@@ -81,6 +81,7 @@ export interface StudentResponse extends UserReponse {
   student_email: string;
   student_name: string;
   student_mobile_number: string;
+  org_id: string;
 }
 
 export interface TeacherResponse extends UserReponse {
@@ -89,4 +90,5 @@ export interface TeacherResponse extends UserReponse {
   teacher_name: string;
   teacher_mobile_number: string;
   org_id: string;
+  practice_speaking_tests?: Array<PracticeSpeakingTestModel>;
 }

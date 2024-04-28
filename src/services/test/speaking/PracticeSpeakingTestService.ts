@@ -4,27 +4,31 @@ import ITestGeneratorService from "../../testGen/ITextGeneratorService";
 import ELCIELTSInternalError from "../../../exception/ELCIELTSInternalError";
 import { SpeakingTestOperation, TestStageStatus, TestStatus } from "../../../utils/types/common/common";
 import IMediaRecorder from "../../mediaRecorder/IMediaRecorder";
-import { PracticeSpeakingTestResponse, PracticeSpeakingTestStageStartResponse } from "../../../utils/types/common/types";
+import { StudentResponse } from "../../../utils/types/common/types";
 import { Constants } from "../../../utils/types/common/constants";
 import IPracticeSpeakingTestRepository from "../../../repository/speakingTest/practice/IPracticeSpeakingTestRepository";
 import IPracticeSpeakingTestStageRepository from "../../../repository/speakingTest/practice/IPracticeSpeakingTestStageRepository";
 import ISpeakingTestService from "./ISpeakingTestService";
 import { StartStopSpeakingTestStage } from "../../../utils/types/test/IELTSTestTypes";
 import ChatGPTValidator from "../../../utils/validators/ChatGPTValidator";
+import IUsersRepository from "../../../repository/users/IUsersRepository";
 
 class PracticeSpeakingTestService implements ISpeakingTestService {
   private practiceSpeakingTestRepository: IPracticeSpeakingTestRepository;
   private practiceSpeakingTestStageRepository: IPracticeSpeakingTestStageRepository;
+  private userRepository: IUsersRepository;
   private testGenFunctionMap: Map<number, (...val: Array<string>) => Promise<Array<string | null>>>;
   private mediaRecorder: IMediaRecorder;
   constructor(
     practiceSpeakingTestRepository: IPracticeSpeakingTestRepository,
     practiceSpeakingTestStageRepository: IPracticeSpeakingTestStageRepository,
+    userRepository: IUsersRepository,
     testGenService: ITestGeneratorService,
     mediaRecorder: IMediaRecorder
   ) {
     this.practiceSpeakingTestRepository = practiceSpeakingTestRepository;
     this.practiceSpeakingTestStageRepository = practiceSpeakingTestStageRepository;
+    this.userRepository = userRepository;
     this.testGenFunctionMap = new Map([
       [2, () => testGenService.generateSpeakingTestStage2()],
       [3, (prevGenText: string) => testGenService.generateSpeakingTestStage3(prevGenText)],
@@ -38,6 +42,9 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
 
     const speakingTestStage1: SpeakingTestStageModel = await this.createSpeakingTestStageTwo(speakingTest.practice_speaking_test_id);
     await this.createSpeakingTestStageThree(speakingTest.practice_speaking_test_id, speakingTestStage1.generated_question);
+
+    const student: StudentResponse = await this.userRepository.getStudentById(studentId);
+    await this.updateEvaluatorId(speakingTest.practice_speaking_test_id, student.org_id);
 
     return await this.practiceSpeakingTestRepository.updateStatusById(speakingTest.practice_speaking_test_id, TestStatus.SPEAKING_TEST_CREATED);
   }
@@ -122,6 +129,14 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
       stgNumber == 2 ? TestStatus.SPEAKING_TEST_PART_2_COMPLETED : TestStatus.SPEAKING_TEST_PART_3_COMPLETED
     );
     return await this.getNextAvailableSpeakingTestStages(speakingTestId);
+  }
+
+  private async updateEvaluatorId(speakingTestId: string, orgId: string) {
+    const fewestSpeakingTestTeacher = await this.userRepository.getTeachersWithFewestSpekaingTests(orgId);
+    console.log(`fewestSpeakingTestTeacher: ${fewestSpeakingTestTeacher[0].teacher_name}`);
+    const eligibleEvaluatorId: string | null = fewestSpeakingTestTeacher[0].teacher_id || null;
+    console.log(`eligibel evaluator id: ${eligibleEvaluatorId}`);
+    await this.practiceSpeakingTestRepository.updateEvaluatorId(speakingTestId, eligibleEvaluatorId);
   }
 
   private async updatePracticeSpeakingTestStageStatus(speakingTestId: string, speakingTestStageId: string, stageStatus: string, speakingTestStatus: string) {

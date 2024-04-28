@@ -11,6 +11,7 @@ import MockSpeakingTestService from "../services/test/speaking/MockSpeakingTestS
 import TestService from "../services/test/TestService";
 import ISpeakingTestService from "../services/test/speaking/ISpeakingTestService";
 import { PracticeSpeakingTestStageModel } from "../utils/types/dbtypes/models";
+import CommonUserRepository from "../repository/users/CommonUserRepository";
 
 class SpeakingTestController {
   private speakingTestServiceMap: Map<string, ISpeakingTestService>;
@@ -21,6 +22,7 @@ class SpeakingTestController {
     this.practiceSpeakingTestService = new PracticeSpeakingTestService(
       PrismaPracticeSpeakingTestRepository.getInstance(),
       PrismaPraticeSpeakingTestStageRepository.getInstance(),
+      CommonUserRepository.getInstance(),
       ChatGPTGeneratorService.getInstance(),
       FSMediaRecorder.getInstance()
     );
