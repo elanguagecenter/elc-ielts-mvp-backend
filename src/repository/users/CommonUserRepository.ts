@@ -34,6 +34,20 @@ class CommonUserRepository implements IUsersRepository {
         throw new ELCIELTSNotFoundError(`Student not found for studentId: ${studentId}`);
       });
   }
+
+  async getTeachersWithFewestSpekaingTests(orgId: string): Promise<Array<TeacherResponse>> {
+    return await prisma.teacher.findMany({
+      orderBy: {
+        practice_speaking_tests: {
+          _count: "asc",
+        },
+      },
+      where: {
+        org_id: orgId,
+      },
+      take: 1,
+    });
+  }
 }
 
 export default CommonUserRepository;
