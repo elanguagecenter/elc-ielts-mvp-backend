@@ -15,8 +15,7 @@ class UserController {
 
   @AsyncControllerHandle
   async getUser(req: Request, res: Response, next: NextFunction) {
-    const type = req.query.type?.toString() || Constants.EMPTY_STR;
-    const result: UserReponse = await this.userService.getUser(type, req.userData.userId);
+    const result: UserReponse = await this.userService.getUser(req.userData.userType, req.userData.userId);
     res.status(200).send(result);
   }
 }

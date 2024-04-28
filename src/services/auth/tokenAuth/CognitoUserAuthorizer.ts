@@ -5,10 +5,17 @@ import jwkToPem from "jwk-to-pem";
 import configs from "../../../config/configs";
 import jwkToBuffer from "jwk-to-pem";
 import ELCIELTSUnauthorizedError from "../../../exception/ELCIELTSUnauthorizedError";
+import { CognitoUserGroups, UserTypes } from "../../../utils/types/common/common";
 
 class CognitoUserAuthorizer implements UserAuthorizer {
   private static instance = new CognitoUserAuthorizer();
-  private constructor() {}
+  private cognitoGroupUserTypeMap: Map<string, string>;
+  private constructor() {
+    this.cognitoGroupUserTypeMap = new Map([
+      [CognitoUserGroups.STUDENT_GROUP, UserTypes.STUDENT],
+      [CognitoUserGroups.TEACHER_GROUP, UserTypes.TEACHER],
+    ]);
+  }
 
   static GetInstance(): CognitoUserAuthorizer {
     return this.instance;
@@ -25,6 +32,7 @@ class CognitoUserAuthorizer implements UserAuthorizer {
           userId: result[0].data["custom:userId"],
           email: result[0].data.email,
           cognitoName: result[0].data["cognito:username"],
+          userType: result[0].data["cognito:groups"].map((group: string) => this.cognitoGroupUserTypeMap.get(group) || "")[0],
         };
         next();
       }
