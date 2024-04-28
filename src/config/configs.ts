@@ -12,6 +12,7 @@ const configs = {
   bucket_name: process.env.S3_BUCKET_NAME || "elc-b2b-ielts-mvp-dev-local-bucket-bucket",
   cognito_client_id: process.env.COGNITO_CLIENT_ID || "",
   cognito_client_secret: process.env.COGNITO_CLIENT_SECRET || "",
+  cognito_pool_id: process.env.COGNITO_POOL_ID || "",
 };
 
 export default configs;
