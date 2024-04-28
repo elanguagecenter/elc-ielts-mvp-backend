@@ -14,6 +14,7 @@ class DummyAuthorizer implements UserAuthorizer {
       userId: "de5718fe-ebe8-479a-890f-d62392c2a6c1",
       email: "jayamaljayamaha2@gmail.com",
       cognitoName: "JJ",
+      userType: "Student",
     };
     next();
   }

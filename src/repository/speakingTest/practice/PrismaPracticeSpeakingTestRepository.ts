@@ -61,6 +61,17 @@ class PrismaPracticeSpeakingTestRepository implements IPracticeSpeakingTestRepos
       },
     });
   }
+
+  async updateEvaluatorId(testId: string, evaluatorId: string | null): Promise<PracticeSpeakingTestModel> {
+    return await prisma.practice_speaking_test.update({
+      where: {
+        practice_speaking_test_id: testId,
+      },
+      data: {
+        evaluator_id: evaluatorId,
+      },
+    });
+  }
 }
 
 export default PrismaPracticeSpeakingTestRepository;
