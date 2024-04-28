@@ -5,6 +5,7 @@ export interface UserData {
   userId: string;
   email: string;
   cognitoName: string;
+  userType: string;
 }
 
 export interface UserSigninPayload {
@@ -23,6 +24,7 @@ export interface UserSigninResponse {
   status: string;
   tokenData?: AuthenticationResultType;
   sessionData?: string;
+  userType?: string;
 }
 
 export interface TestSeachResult {
@@ -79,4 +81,12 @@ export interface StudentResponse extends UserReponse {
   student_email: string;
   student_name: string;
   student_mobile_number: string;
+}
+
+export interface TeacherResponse extends UserReponse {
+  teacher_id: string;
+  teacher_email: string;
+  teacher_name: string;
+  teacher_mobile_number: string;
+  org_id: string;
 }
