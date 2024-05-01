@@ -1,6 +1,6 @@
 import ELCIELTSNotImplementedError from "../../../exception/ELCIELTSNotImplementedError";
 import { SpeakingTestStageModel } from "../../../utils/types/dbtypes/models";
-import { StartStopSpeakingTestStage, UpdateSpeakingTestQuestion } from "../../../utils/types/test/IELTSTestTypes";
+import { UpdateSpeakingTestQuestion, UpdateTestStagePayload } from "../../../utils/types/test/IELTSTestTypes";
 import CommonValidator from "../../../utils/validators/CommonValidator";
 import { ITestService } from "../TestService";
 import ITestGeneratorService from "../../testGen/ITextGeneratorService";
@@ -32,16 +32,24 @@ class MockSpeakingTestService implements ISpeakingTestService {
     ]);
     this.mediaRecorder = mediaRecorder;
   }
-  updateSpeakingTestStage(speakingTestId: string, speakingTestStageId: string, operation: string, payLoad: StartStopSpeakingTestStage, userId: string): Promise<any[]> {
+
+  updateSpeakingTestStage(
+    speakingTestId: string,
+    speakingTestStageId: string,
+    operation: string,
+    payLoad: UpdateTestStagePayload,
+    userId: string,
+    userType: string
+  ): Promise<any[]> {
     throw new Error("Method not implemented.");
   }
-  getNextAvailableSpeakingTestStages(speakingTestId: string): Promise<any[]> {
+  getNextAvailableSpeakingTestStages(speakingTestId: string, userType: string, userId: string): Promise<any[]> {
     throw new Error("Method not implemented.");
   }
-  getAllSpeakingTestsByReleventId(id: string, page: string, limit: string): Promise<any> {
+  getAllSpeakingTestsByReleventId(id: string, userType: string, page: string, limit: string): Promise<any> {
     throw new Error("Method not implemented.");
   }
-  getSpecificSpeakingTestStage(speakingTestId: string, stageNum: string): Promise<any> {
+  getSpecificSpeakingTestStage(speakingTestId: string, stageNum: string, userType: string, userId: string): Promise<any> {
     throw new ELCIELTSNotImplementedError("Requested functionality is under construction");
   }
   startSpeakingTestStageRecording(speakingTestId: string, speakingTestStageId: string, stgNumber: string, userId: string): Promise<any> {
@@ -81,7 +89,7 @@ class MockSpeakingTestService implements ISpeakingTestService {
     throw new ELCIELTSNotImplementedError("Requested functionality is under construction");
   }
 
-  async getAllSpeakingTestStages(speakingTestId: string): Promise<Array<SpeakingTestStageModel>> {
+  async getAllSpeakingTestStages(speakingTestId: string, userType: string, userId: string): Promise<Array<SpeakingTestStageModel>> {
     // CommonValidator.validateNotEmptyOrBlankString(speakingTestId, "Speaking Test ID");
     // return await this.speakingTestStageRepository.getAllBySpeakingTestId(speakingTestId);
     throw new ELCIELTSNotImplementedError("Requested functionality is under construction");
@@ -101,6 +109,10 @@ class MockSpeakingTestService implements ISpeakingTestService {
     const stgNumberValue = CommonValidator.validatePositiveNumberString(stgNumber, "stageNumber");
     CommonValidator.validateValidPossibleNumberValue(stgNumberValue, [2, 3], "stageNumber");
     return stgNumberValue;
+  }
+
+  getAudioURLPath(stageId: string, userId: string): Promise<string> {
+    throw new Error("Method not implemented.");
   }
 }
 

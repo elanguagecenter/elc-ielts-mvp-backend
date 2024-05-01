@@ -14,8 +14,9 @@ export interface UpdateSpeakingTestQuestion {
   operation: string;
 }
 
-export interface StartStopSpeakingTestStage {
+export interface UpdateTestStagePayload {
   stgNumber: string;
+  evaluation?: string;
 }
 
 export interface UpdateWritingTestStage {

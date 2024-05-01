@@ -68,6 +68,7 @@ export enum TestOperations {
 export enum SpeakingTestOperation {
   START = "start",
   STOP = "stop",
+  EVALUATE = "evaluate",
 }
 
 export enum TestQuestionTypes {
