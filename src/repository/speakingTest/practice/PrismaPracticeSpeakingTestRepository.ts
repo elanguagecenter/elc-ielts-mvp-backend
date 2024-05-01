@@ -84,7 +84,13 @@ class PrismaPracticeSpeakingTestRepository implements IPracticeSpeakingTestRepos
       where: {
         evaluator_id: teacherId,
         current_status: {
-          in: [TestStatus.SPEAKING_TEST_PART_3_COMPLETED, TestStatus.SPEAKING_TEST_PART_3_EVALUATED, TestStatus.SPEAKING_TEST_PART_3_FAILED],
+          in: [
+            TestStatus.SPEAKING_TEST_PART_3_COMPLETED,
+            TestStatus.SPEAKING_TEST_PART_2_EVALUATED,
+            TestStatus.SPEAKING_TEST_PART_3_EVALUATED,
+            TestStatus.SPEAKING_TEST_PART_2_FAILED,
+            TestStatus.SPEAKING_TEST_PART_3_FAILED,
+          ],
         },
       },
       skip: skip,
