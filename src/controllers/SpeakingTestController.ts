@@ -1,5 +1,4 @@
 import { Response, Request, NextFunction } from "express";
-import { StartStopSpeakingTestStage } from "../utils/types/test/IELTSTestTypes";
 import AsyncControllerHandle from "../utils/decorators/AsyncControllerErrorDecorator";
 import { Constants } from "../utils/types/common/constants";
 import PrismaPracticeSpeakingTestRepository from "../repository/speakingTest/practice/PrismaPracticeSpeakingTestRepository";
@@ -12,6 +11,7 @@ import TestService from "../services/test/TestService";
 import ISpeakingTestService from "../services/test/speaking/ISpeakingTestService";
 import { PracticeSpeakingTestStageModel } from "../utils/types/dbtypes/models";
 import CommonUserRepository from "../repository/users/CommonUserRepository";
+import { UpdateTestStagePayload } from "../utils/types/test/IELTSTestTypes";
 
 class SpeakingTestController {
   private speakingTestServiceMap: Map<string, ISpeakingTestService>;
@@ -50,7 +50,7 @@ class SpeakingTestController {
     const limit = req.query.limit?.toString() || Constants.DEFAULT_PAGE_LIMIT;
     const page = req.query.page?.toString() || Constants.DEAULT_PAGE_NUM;
     const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
-    const result = await spekaingTestService.getAllSpeakingTestsByReleventId(testId == Constants.PRACTICE_ROUTE ? req.userData.userId : testId, page, limit);
+    const result = await spekaingTestService.getAllSpeakingTestsByReleventId(testId == Constants.PRACTICE_ROUTE ? req.userData.userId : testId, req.userData.userType, page, limit);
     res.status(200).send(result);
   }
 
@@ -59,7 +59,7 @@ class SpeakingTestController {
     const speakingTestId = req.params.speakingTestId;
     const testId = req.params.testId;
     const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
-    const result = await spekaingTestService.getAllSpeakingTestStages(speakingTestId);
+    const result = await spekaingTestService.getAllSpeakingTestStages(speakingTestId, req.userData.userType, req.userData.userId);
     res.status(200).send(result);
   }
 
@@ -69,7 +69,7 @@ class SpeakingTestController {
     const stgNumber = req.params.stgNumber;
     const speakingTestId = req.params.speakingTestId;
     const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
-    const result = await spekaingTestService.getSpecificSpeakingTestStage(speakingTestId, stgNumber);
+    const result = await spekaingTestService.getSpecificSpeakingTestStage(speakingTestId, stgNumber, req.userData.userType, req.userData.userId);
     res.status(200).send(result);
   }
 
@@ -78,11 +78,11 @@ class SpeakingTestController {
     const testId = req.params.testId;
     const speakingTestId = req.params.speakingTestId;
     const speakingTestStageId = req.params.stageId;
-    const payLoad: StartStopSpeakingTestStage = req.body;
+    const payLoad: UpdateTestStagePayload = req.body;
     const operation = req.query.operation?.toString() || Constants.EMPTY_STR;
 
     const spekaingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
-    const result = await spekaingTestService.updateSpeakingTestStage(speakingTestId, speakingTestStageId, operation, payLoad, req.userData.userId);
+    const result = await spekaingTestService.updateSpeakingTestStage(speakingTestId, speakingTestStageId, operation, payLoad, req.userData.userId, req.userData.userType);
     res.status(200).send(result);
   }
 
@@ -91,8 +91,17 @@ class SpeakingTestController {
     const testId = req.params.testId;
     const speakingTestId = req.params.speakingTestId;
     const speakingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
-    const result: Array<PracticeSpeakingTestStageModel> = await speakingTestService.getNextAvailableSpeakingTestStages(speakingTestId);
+    const result: Array<PracticeSpeakingTestStageModel> = await speakingTestService.getNextAvailableSpeakingTestStages(speakingTestId, req.userData.userType, req.userData.userId);
     res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
+  async getAudioFileFromSpeakingStage(req: Request, res: Response, next: NextFunction) {
+    const testId = req.params.testId;
+    const speakingTestStageId = req.params.stageId;
+    const speakingTestService: ISpeakingTestService = this.speakingTestServiceMap.get(testId) || this.mockSpeakingTestService;
+    const filePath: string = await speakingTestService.getAudioURLPath(speakingTestStageId, req.userData.userId);
+    res.status(200).sendFile(filePath);
   }
 }
 
