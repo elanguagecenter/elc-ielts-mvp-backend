@@ -24,10 +24,24 @@ class PrismaPracticeSpeakingTestRepository implements IPracticeSpeakingTestRepos
   }
 
   @Handle
-  async updateStatusById(practiceSpeakingTestId: string, status: string): Promise<PracticeSpeakingTestModel> {
+  async updateStatusByStudentIdAndId(speakingTestId: string, status: string, studentId: string): Promise<PracticeSpeakingTestModel> {
     return await prisma.practice_speaking_test.update({
       where: {
-        practice_speaking_test_id: practiceSpeakingTestId,
+        practice_speaking_test_id: speakingTestId,
+        student_id: studentId,
+      },
+      data: {
+        current_status: status,
+      },
+    });
+  }
+
+  @Handle
+  async updateStatusByTeacherIdAndId(speakingTestId: string, status: string, teacherId: string): Promise<PracticeSpeakingTestModel> {
+    return await prisma.practice_speaking_test.update({
+      where: {
+        practice_speaking_test_id: speakingTestId,
+        evaluator_id: teacherId,
       },
       data: {
         current_status: status,
@@ -48,6 +62,7 @@ class PrismaPracticeSpeakingTestRepository implements IPracticeSpeakingTestRepos
       });
   }
 
+  @Handle
   async getAllByStudentIdWithPageAndLimit(studentId: string, page: number, limit: number): Promise<Array<PracticeSpeakingTestModel>> {
     const skip = (page - 1) * limit;
     return await prisma.practice_speaking_test.findMany({
@@ -62,6 +77,25 @@ class PrismaPracticeSpeakingTestRepository implements IPracticeSpeakingTestRepos
     });
   }
 
+  @Handle
+  async getAllByTeacherIdWithPageAndLimit(teacherId: string, page: number, limit: number): Promise<Array<PracticeSpeakingTestModel>> {
+    const skip = (page - 1) * limit;
+    return await prisma.practice_speaking_test.findMany({
+      where: {
+        evaluator_id: teacherId,
+        current_status: {
+          in: [TestStatus.SPEAKING_TEST_PART_3_COMPLETED, TestStatus.SPEAKING_TEST_PART_3_EVALUATED, TestStatus.SPEAKING_TEST_PART_3_FAILED],
+        },
+      },
+      skip: skip,
+      take: limit,
+      orderBy: {
+        last_modified_time: "desc",
+      },
+    });
+  }
+
+  @Handle
   async updateEvaluatorId(testId: string, evaluatorId: string | null): Promise<PracticeSpeakingTestModel> {
     return await prisma.practice_speaking_test.update({
       where: {
