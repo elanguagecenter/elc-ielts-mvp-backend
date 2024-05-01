@@ -19,7 +19,7 @@ class PrismaPraticeSpeakingTestStageRepository implements IPracticeSpeakingTestS
       data: {
         stg_number: stgNumber,
         generated_question: generatedQuestion,
-        status: TestStageStatus.CREATED,
+        status: TestStageStatus.QUESTIONS_GENERATED,
         practice_speaking_test_id: speakingTestId,
       },
     });
