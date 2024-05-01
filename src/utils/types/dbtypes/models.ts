@@ -44,6 +44,7 @@ export interface SpeakingTestStageModel {
   stg_number: number;
   generated_question: string;
   uploaded_media_url: string | null;
+  evaluated_result: string | null;
   status: string | null;
   created_time: Date;
   last_modified_time: Date;

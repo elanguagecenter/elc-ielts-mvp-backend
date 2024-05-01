@@ -8,30 +8,15 @@ const speakingTestController: SpeakingTestController = new SpeakingTestControlle
 
 // routes begining /ielts/test/:testId/speaking
 speakingTestRoute.post("/", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.StudentAccess, speakingTestController.createNewSpeakingTest.bind(speakingTestController));
+speakingTestRoute.get("/", CognitoAuthMiddleware, speakingTestController.getAllSpeakingTestsByTestIdOrUserId.bind(speakingTestController));
+speakingTestRoute.get("/:speakingTestId/stages", CognitoAuthMiddleware, speakingTestController.getNextAvailableWritingTestStages.bind(speakingTestController));
+speakingTestRoute.get("/:speakingTestId/stages/:stageId", CognitoAuthMiddleware, speakingTestController.getSpecificExistingSpeakingStage.bind(speakingTestController));
+speakingTestRoute.put("/:speakingTestId/stages/:stageId", CognitoAuthMiddleware, speakingTestController.updateSpeakingTestStage.bind(speakingTestController));
 speakingTestRoute.get(
-  "/",
+  "/:speakingTestId/stages/:stageId/audio",
   CognitoAuthMiddleware,
-  EndPointAccessVerifyMiddleware.StudentAccess,
-  speakingTestController.getAllSpeakingTestsByTestIdOrUserId.bind(speakingTestController)
-);
-speakingTestRoute.get(
-  "/:speakingTestId/stages",
-  CognitoAuthMiddleware,
-  EndPointAccessVerifyMiddleware.StudentAccess,
-  speakingTestController.getNextAvailableWritingTestStages.bind(speakingTestController)
-);
-speakingTestRoute.get(
-  "/:speakingTestId/stages/:stageId",
-  CognitoAuthMiddleware,
-  EndPointAccessVerifyMiddleware.StudentAccess,
-  speakingTestController.getSpecificExistingSpeakingStage.bind(speakingTestController)
-);
-
-speakingTestRoute.put(
-  "/:speakingTestId/stages/:stageId",
-  CognitoAuthMiddleware,
-  EndPointAccessVerifyMiddleware.StudentAccess,
-  speakingTestController.updateSpeakingTestStage.bind(speakingTestController)
+  EndPointAccessVerifyMiddleware.TeacherAccess,
+  speakingTestController.getAudioFileFromSpeakingStage.bind(speakingTestController)
 );
 
 export default speakingTestRoute;
