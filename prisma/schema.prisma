@@ -131,6 +131,7 @@ model speaking_test_stage {
   stg_number             Int
   generated_question     String
   uploaded_media_url     String?
+  evaluated_result       String?
   status                 String        @db.VarChar(50)
   created_time           DateTime      @default(now())
   last_modified_time     DateTime      @updatedAt
@@ -172,6 +173,7 @@ model practice_speaking_test_stage {
   stg_number                      Int
   generated_question              String
   uploaded_media_url              String?
+  evaluated_result                String?
   status                          String                 @db.VarChar(50)
   created_time                    DateTime               @default(now())
   last_modified_time              DateTime               @updatedAt
