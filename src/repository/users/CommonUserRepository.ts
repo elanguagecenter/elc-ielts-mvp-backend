@@ -1,5 +1,6 @@
 import prisma from "../../config/DatabaseSource";
 import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
+import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
 import { StudentResponse, TeacherResponse } from "../../utils/types/common/types";
 import IUsersRepository from "./IUsersRepository";
 
@@ -11,6 +12,7 @@ class CommonUserRepository implements IUsersRepository {
   }
   private constructor() {}
 
+  @Handle
   async getTeacherById(teacherId: string): Promise<TeacherResponse> {
     return await prisma.teacher
       .findUniqueOrThrow({
@@ -23,6 +25,7 @@ class CommonUserRepository implements IUsersRepository {
       });
   }
 
+  @Handle
   async getStudentById(studentId: string): Promise<StudentResponse> {
     return await prisma.student
       .findUniqueOrThrow({
@@ -35,6 +38,7 @@ class CommonUserRepository implements IUsersRepository {
       });
   }
 
+  @Handle
   async getTeachersWithFewestSpekaingTests(orgId: string): Promise<Array<TeacherResponse>> {
     return await prisma.teacher.findMany({
       orderBy: {
