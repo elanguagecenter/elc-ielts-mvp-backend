@@ -28,6 +28,10 @@ model organization {
   teachers              teacher[]
 }
 
+//* -------------------------------------------------------------------------------------------------------- *//
+//* User Related Models
+//* -------------------------------------------------------------------------------------------------------- *//
+
 model admin {
   admin_id            String       @id @default(uuid())
   admin_email         String       @db.VarChar(50)
@@ -54,6 +58,20 @@ model student {
   practice_listening_tests practice_listening_test[]
 }
 
+model teacher {
+  teacher_id              String                   @id @default(uuid())
+  teacher_email           String                   @db.VarChar(50)
+  teacher_name            String                   @default("teacher") @db.VarChar(100)
+  teacher_mobile_number   String                   @db.VarChar(15)
+  created_time            DateTime                 @default(now())
+  last_modified_time      DateTime                 @updatedAt
+  org                     organization             @relation(fields: [org_id], references: [org_id])
+  org_id                  String
+  practice_speaking_tests practice_speaking_test[]
+}
+
+//* -------------------------------------------------------------------------------------------------------- *//
+
 //* -------------------------------------------------------------------------------------------------------- *//
 //* Test Related Models *//
 //* -------------------------------------------------------------------------------------------------------- *//
@@ -66,7 +84,6 @@ model test {
   student            student         @relation(fields: [student_id], references: [student_id])
   student_id         String
   test_statuses      test_status[]
-  teacher_test       teacher_test?
   speaking_test      speaking_test?
   writing_test       writing_test?
   reading_test       reading_test?
@@ -83,29 +100,6 @@ model test_status {
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//
-
-model teacher {
-  teacher_id            String         @id @default(uuid())
-  teacher_name          String         @db.VarChar(50)
-  teacher_email         String         @db.VarChar(50)
-  teacher_mobile_number String         @db.VarChar(15)
-  created_time          DateTime       @default(now())
-  last_modified_time    DateTime       @updatedAt
-  org                   organization   @relation(fields: [org_id], references: [org_id])
-  org_id                String
-  teacher_tests         teacher_test[]
-}
-
-model teacher_test {
-  teacher_test_id    String   @id @default(uuid())
-  status             String   @db.VarChar(20)
-  created_time       DateTime @default(now())
-  last_modified_time DateTime @updatedAt
-  test               test     @relation(fields: [test_id], references: [test_id])
-  test_id            String   @unique
-  teacher            teacher  @relation(fields: [teacher_id], references: [teacher_id])
-  teacher_id         String
-}
 
 //* -------------------------------------------------------------------------------------------------------- *//
 //* Speaking Test Related Models *//
@@ -137,6 +131,7 @@ model speaking_test_stage {
   stg_number             Int
   generated_question     String
   uploaded_media_url     String?
+  evaluated_result       String?
   status                 String        @db.VarChar(50)
   created_time           DateTime      @default(now())
   last_modified_time     DateTime      @updatedAt
@@ -160,6 +155,8 @@ model practice_speaking_test {
   practice_speaking_test_stages   practice_speaking_test_stage[]
   student                         student                         @relation(fields: [student_id], references: [student_id])
   student_id                      String
+  evaluator                       teacher?                        @relation(fields: [evaluator_id], references: [teacher_id])
+  evaluator_id                    String?
 }
 
 model practice_speaking_test_status {
@@ -176,6 +173,7 @@ model practice_speaking_test_stage {
   stg_number                      Int
   generated_question              String
   uploaded_media_url              String?
+  evaluated_result                String?
   status                          String                 @db.VarChar(50)
   created_time                    DateTime               @default(now())
   last_modified_time              DateTime               @updatedAt

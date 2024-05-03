@@ -1,6 +1,7 @@
 import prisma from "../../config/DatabaseSource";
 import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
-import { StudentResponse } from "../../utils/types/common/types";
+import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
+import { StudentResponse, TeacherResponse } from "../../utils/types/common/types";
 import IUsersRepository from "./IUsersRepository";
 
 class CommonUserRepository implements IUsersRepository {
@@ -11,6 +12,20 @@ class CommonUserRepository implements IUsersRepository {
   }
   private constructor() {}
 
+  @Handle
+  async getTeacherById(teacherId: string): Promise<TeacherResponse> {
+    return await prisma.teacher
+      .findUniqueOrThrow({
+        where: {
+          teacher_id: teacherId,
+        },
+      })
+      .catch(() => {
+        throw new ELCIELTSNotFoundError(`Teacher not found for teacherId: ${teacherId}`);
+      });
+  }
+
+  @Handle
   async getStudentById(studentId: string): Promise<StudentResponse> {
     return await prisma.student
       .findUniqueOrThrow({
@@ -21,6 +36,21 @@ class CommonUserRepository implements IUsersRepository {
       .catch(() => {
         throw new ELCIELTSNotFoundError(`Student not found for studentId: ${studentId}`);
       });
+  }
+
+  @Handle
+  async getTeachersWithFewestSpekaingTests(orgId: string): Promise<Array<TeacherResponse>> {
+    return await prisma.teacher.findMany({
+      orderBy: {
+        practice_speaking_tests: {
+          _count: "asc",
+        },
+      },
+      where: {
+        org_id: orgId,
+      },
+      take: 1,
+    });
   }
 }
 

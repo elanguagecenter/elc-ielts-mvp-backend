@@ -68,6 +68,7 @@ export enum TestOperations {
 export enum SpeakingTestOperation {
   START = "start",
   STOP = "stop",
+  EVALUATE = "evaluate",
 }
 
 export enum TestQuestionTypes {
@@ -95,7 +96,12 @@ export enum SigninResponseStatus {
 }
 
 export enum UserTypes {
-  STUDENT = "student",
-  ADMIN = "admin",
-  INSTRUCTOR = "instructor",
+  STUDENT = "Student",
+  ADMIN = "Admin",
+  TEACHER = "Teacher",
+}
+
+export enum CognitoUserGroups {
+  STUDENT_GROUP = "elc-b2b-ielts-mvp-dev-student-user-group",
+  TEACHER_GROUP = "elc-b2b-ielts-mvp-dev-teacher-user-group",
 }

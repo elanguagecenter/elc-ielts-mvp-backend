@@ -7,6 +7,9 @@ import {
   RespondToAuthChallengeCommandInput,
   GlobalSignOutCommand,
   GlobalSignOutCommandOutput,
+  AdminListGroupsForUserCommand,
+  AdminListGroupsForUserCommandOutput,
+  AuthenticationResultType,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoChallangePayload, UserSigninPayload, UserSigninResponse } from "../../../utils/types/common/types";
 import ISigninService from "./ISigninService";
@@ -14,7 +17,7 @@ import cognitoClient from "../../../config/CognitoConfig";
 import configs from "../../../config/configs";
 import crypto from "crypto";
 import ELCIELTSUnauthorizedError from "../../../exception/ELCIELTSUnauthorizedError";
-import { CognitoChallanges, SigninResponseStatus } from "../../../utils/types/common/common";
+import { CognitoChallanges, CognitoUserGroups, SigninResponseStatus, UserTypes } from "../../../utils/types/common/common";
 import CommonValidator from "../../../utils/validators/CommonValidator";
 import ELCIELTSInternalError from "../../../exception/ELCIELTSInternalError";
 
@@ -22,10 +25,15 @@ class CognitoSigninService implements ISigninService {
   private static instance: ISigninService = new CognitoSigninService();
   private cognitoClient: CognitoIdentityProviderClient;
   private cognitoChallangeExecutionMap: Map<string, (...params: Array<any>) => Promise<UserSigninResponse>>;
+  private cognitoGroupUserTypeMap: Map<string, string>;
 
   private constructor() {
     this.cognitoClient = cognitoClient;
     this.cognitoChallangeExecutionMap = new Map([[CognitoChallanges.NEW_PASSWORD_REQUIRED, this.completeNewPasswordRequiredChallange.bind(this)]]);
+    this.cognitoGroupUserTypeMap = new Map([
+      [CognitoUserGroups.STUDENT_GROUP, UserTypes.STUDENT],
+      [CognitoUserGroups.TEACHER_GROUP, UserTypes.TEACHER],
+    ]);
   }
 
   static GetInstance(): ISigninService {
@@ -49,10 +57,7 @@ class CognitoSigninService implements ISigninService {
       .send(command)
       .then((res) => {
         if (res.AuthenticationResult) {
-          return {
-            status: SigninResponseStatus.AUTHENTICATED,
-            tokenData: res.AuthenticationResult,
-          };
+          return this.getUserGroup(payLoad.userName, res.AuthenticationResult);
         } else if (res.ChallengeName === SigninResponseStatus.NEW_PASSWORD_REQUIRED) {
           return {
             status: SigninResponseStatus.NEW_PASSWORD_REQUIRED,
@@ -81,6 +86,19 @@ class CognitoSigninService implements ISigninService {
     return await this.cognitoClient.send(command);
   }
 
+  private async getUserGroup(userName: string, authResult: AuthenticationResultType | undefined): Promise<UserSigninResponse> {
+    const command = new AdminListGroupsForUserCommand({
+      Username: userName,
+      UserPoolId: configs.cognito_pool_id,
+    });
+    const output: AdminListGroupsForUserCommandOutput = await this.cognitoClient.send(command);
+    return {
+      status: SigninResponseStatus.AUTHENTICATED,
+      tokenData: authResult,
+      userType: output.Groups?.map((group) => this.cognitoGroupUserTypeMap.get(group.GroupName || "") || "")[0],
+    };
+  }
+
   private async completeNewPasswordRequiredChallange(userName: string, newPassword: string, cognitoSession: string): Promise<UserSigninResponse> {
     CommonValidator.validateNotEmptyOrBlankString(newPassword, "New Password");
     CommonValidator.validateNotEmptyOrBlankString(cognitoSession, "Session");
@@ -99,10 +117,7 @@ class CognitoSigninService implements ISigninService {
     return await this.cognitoClient
       .send(command)
       .then((res) => {
-        return {
-          status: SigninResponseStatus.AUTHENTICATED,
-          tokenData: res.AuthenticationResult,
-        };
+        return this.getUserGroup(userName, res.AuthenticationResult);
       })
       .catch((err) => {
         console.log(err);
