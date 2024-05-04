@@ -1,5 +1,6 @@
 import { AuthenticationResultType } from "@aws-sdk/client-cognito-identity-provider";
 import { PracticeSpeakingTestModel, SpeakingTestModel, SpeakingTestStageModel, TestModel } from "../dbtypes/models";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export interface UserData {
   userId: string;
@@ -28,7 +29,6 @@ export interface UserSigninResponse {
 }
 
 export interface CreateOrganizationPayload {
-  org_id: string;
   org_name: string;
   org_email: string;
   org_mobile_number: string;
@@ -39,6 +39,13 @@ export interface CreateOrganizationPayload {
   monthly_allowed_practice_listening_tests: number;
   monthly_subscription: number;
   adminId: string;
+}
+
+export interface CreateUserPayload {
+  email: string;
+  mobile_number: string;
+  name: string;
+  org_id: string;
 }
 
 export interface TestSeachResult {
@@ -130,6 +137,6 @@ export interface OrganizationResponse {
   monthly_allowed_practice_reading_tests: number;
   monthly_allowed_practice_writing_tests: number;
   monthly_allowed_practice_listening_tests: number;
-  monthly_subscription: number;
+  monthly_subscription: Decimal;
   admin?: OrgAdminResponse;
 }

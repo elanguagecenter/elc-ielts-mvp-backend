@@ -71,6 +71,11 @@ export enum SpeakingTestOperation {
   EVALUATE = "evaluate",
 }
 
+export enum GetUserOperation {
+  ALL = "all",
+  SELF = "self",
+}
+
 export enum TestQuestionTypes {
   MULTIPLE_CHOICE = "Multiple Choice",
   MATCHING_HEADINGS = "Matching Headings",
@@ -105,4 +110,6 @@ export enum UserTypes {
 export enum CognitoUserGroups {
   STUDENT_GROUP = "elc-b2b-ielts-mvp-dev-student-user-group",
   TEACHER_GROUP = "elc-b2b-ielts-mvp-dev-teacher-user-group",
+  ORG_ADMIN_GROUP = "elc-b2b-ielts-mvp-dev-org-admin-user-group",
+  SUPER_ADMIN_GROUP = "elc-b2b-ielts-mvp-dev-super-admin-user-group",
 }
