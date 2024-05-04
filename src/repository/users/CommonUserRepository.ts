@@ -1,7 +1,7 @@
 import prisma from "../../config/DatabaseSource";
 import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
 import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
-import { OrgAdminResponse, StudentResponse, SuperAdminResponse, TeacherResponse } from "../../utils/types/common/types";
+import { CreateUserPayload, OrgAdminResponse, StudentResponse, SuperAdminResponse, TeacherResponse, UserReponse } from "../../utils/types/common/types";
 import IUsersRepository from "./IUsersRepository";
 
 class CommonUserRepository implements IUsersRepository {
@@ -11,6 +11,45 @@ class CommonUserRepository implements IUsersRepository {
     return this.instance;
   }
   private constructor() {}
+
+  @Handle
+  async createStudent(data: CreateUserPayload, userId: string): Promise<UserReponse> {
+    return await prisma.student.create({
+      data: {
+        student_id: userId,
+        student_email: data.email,
+        student_name: data.name,
+        student_mobile_number: data.mobile_number,
+        org_id: data.org_id,
+      },
+    });
+  }
+
+  @Handle
+  async createTeacher(data: CreateUserPayload, userId: string): Promise<UserReponse> {
+    return await prisma.teacher.create({
+      data: {
+        teacher_id: userId,
+        teacher_email: data.email,
+        teacher_name: data.name,
+        teacher_mobile_number: data.mobile_number,
+        org_id: data.org_id,
+      },
+    });
+  }
+
+  @Handle
+  async createOrgAdmin(data: CreateUserPayload, userId: string): Promise<UserReponse> {
+    return await prisma.admin.create({
+      data: {
+        admin_id: userId,
+        admin_email: data.email,
+        admin_name: data.name,
+        admin_mobile_number: data.mobile_number,
+        org_id: data.org_id,
+      },
+    });
+  }
 
   @Handle
   async getTeacherById(teacherId: string): Promise<TeacherResponse> {
@@ -53,6 +92,7 @@ class CommonUserRepository implements IUsersRepository {
     });
   }
 
+  @Handle
   async getOrgAdminById(adminId: string): Promise<OrgAdminResponse> {
     return await prisma.admin
       .findUniqueOrThrow({
@@ -65,6 +105,7 @@ class CommonUserRepository implements IUsersRepository {
       });
   }
 
+  @Handle
   async getSuperAdminById(superAdmin: string): Promise<SuperAdminResponse> {
     return await prisma.super_admin
       .findUniqueOrThrow({
@@ -75,6 +116,50 @@ class CommonUserRepository implements IUsersRepository {
       .catch(() => {
         throw new ELCIELTSNotFoundError(`super Admin not found for superAdminId: ${superAdmin}`);
       });
+  }
+
+  @Handle
+  async getAllStudentsByOrgAdmin(adminId: string): Promise<Array<StudentResponse>> {
+    return await prisma.student.findMany({
+      where: {
+        org: {
+          admin: {
+            admin_id: adminId,
+          },
+        },
+      },
+    });
+  }
+
+  @Handle
+  async getAllStudentsByOrg(orgId: string): Promise<Array<StudentResponse>> {
+    return await prisma.student.findMany({
+      where: {
+        org_id: orgId,
+      },
+    });
+  }
+
+  @Handle
+  async getAllTeachersByOrgAdmin(adminId: string): Promise<Array<TeacherResponse>> {
+    return await prisma.teacher.findMany({
+      where: {
+        org: {
+          admin: {
+            admin_id: adminId,
+          },
+        },
+      },
+    });
+  }
+
+  @Handle
+  async getAllTeachersByOrg(orgId: string): Promise<Array<TeacherResponse>> {
+    return await prisma.teacher.findMany({
+      where: {
+        org_id: orgId,
+      },
+    });
   }
 }
 
