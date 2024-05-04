@@ -18,7 +18,25 @@ const TeacherAccess = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const OrgAdminAccess = (req: Request, res: Response, next: NextFunction) => {
+  if (req.userData.userType && req.userData.userType === UserTypes.ORG_ADMIN) {
+    next();
+  } else {
+    next(new ELCIELTSInsufficientPermissionError(`${req.userData.userType} user type is not authorize to access requested endpoint`));
+  }
+};
+
+const SuperAdminAccess = (req: Request, res: Response, next: NextFunction) => {
+  if (req.userData.userType && req.userData.userType === UserTypes.SUPER_ADMIN) {
+    next();
+  } else {
+    next(new ELCIELTSInsufficientPermissionError(`${req.userData.userType} user type is not authorize to access requested endpoint`));
+  }
+};
+
 export default {
   StudentAccess: StudentAccess,
   TeacherAccess: TeacherAccess,
+  OrgAdminAccess: OrgAdminAccess,
+  SuperAdminAccess: SuperAdminAccess,
 };

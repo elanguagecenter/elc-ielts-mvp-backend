@@ -27,6 +27,20 @@ export interface UserSigninResponse {
   userType?: string;
 }
 
+export interface CreateOrganizationPayload {
+  org_id: string;
+  org_name: string;
+  org_email: string;
+  org_mobile_number: string;
+  number_of_students: number;
+  monthly_allowed_practice_speaking_tests: number;
+  monthly_allowed_practice_reading_tests: number;
+  monthly_allowed_practice_writing_tests: number;
+  monthly_allowed_practice_listening_tests: number;
+  monthly_subscription: number;
+  adminId: string;
+}
+
 export interface TestSeachResult {
   test_id: string;
   test_name: string;
@@ -91,4 +105,31 @@ export interface TeacherResponse extends UserReponse {
   teacher_mobile_number: string;
   org_id: string;
   practice_speaking_tests?: Array<PracticeSpeakingTestModel>;
+}
+
+export interface OrgAdminResponse extends UserReponse {
+  admin_id: string;
+  admin_email: string;
+  admin_mobile_number: string;
+  org_id: string;
+}
+
+export interface SuperAdminResponse extends UserReponse {
+  super_admin_id: string;
+  super_admin_email: string;
+  super_admin_mobile_number: string;
+}
+
+export interface OrganizationResponse {
+  org_id: string;
+  org_name: string;
+  org_email: string;
+  org_mobile_number: string;
+  number_of_students: number;
+  monthly_allowed_practice_speaking_tests: number;
+  monthly_allowed_practice_reading_tests: number;
+  monthly_allowed_practice_writing_tests: number;
+  monthly_allowed_practice_listening_tests: number;
+  monthly_subscription: number;
+  admin?: OrgAdminResponse;
 }

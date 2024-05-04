@@ -1,7 +1,7 @@
 import prisma from "../../config/DatabaseSource";
 import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
 import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
-import { StudentResponse, TeacherResponse } from "../../utils/types/common/types";
+import { OrgAdminResponse, StudentResponse, SuperAdminResponse, TeacherResponse } from "../../utils/types/common/types";
 import IUsersRepository from "./IUsersRepository";
 
 class CommonUserRepository implements IUsersRepository {
@@ -51,6 +51,30 @@ class CommonUserRepository implements IUsersRepository {
       },
       take: 1,
     });
+  }
+
+  async getOrgAdminById(adminId: string): Promise<OrgAdminResponse> {
+    return await prisma.admin
+      .findUniqueOrThrow({
+        where: {
+          admin_id: adminId,
+        },
+      })
+      .catch(() => {
+        throw new ELCIELTSNotFoundError(`Admin not found for adminId: ${adminId}`);
+      });
+  }
+
+  async getSuperAdminById(superAdmin: string): Promise<SuperAdminResponse> {
+    return await prisma.super_admin
+      .findUniqueOrThrow({
+        where: {
+          super_admin_id: superAdmin,
+        },
+      })
+      .catch(() => {
+        throw new ELCIELTSNotFoundError(`super Admin not found for superAdminId: ${superAdmin}`);
+      });
   }
 }
 

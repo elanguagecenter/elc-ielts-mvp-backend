@@ -14,23 +14,34 @@ datasource db {
 }
 
 model organization {
-  org_id                String    @id @default(uuid())
-  org_name              String    @db.VarChar(100)
-  org_email             String    @db.VarChar(50)
-  org_mobile_number     String    @db.VarChar(15)
-  number_of_students    Int
-  monthly_allowed_tests Int
-  monthly_subscription  Decimal
-  created_time          DateTime  @default(now())
-  last_modified_time    DateTime  @updatedAt
-  admin                 admin?
-  students              student[]
-  teachers              teacher[]
+  org_id                                   String    @id @default(uuid())
+  org_name                                 String    @db.VarChar(100)
+  org_email                                String    @db.VarChar(50)
+  org_mobile_number                        String    @db.VarChar(15)
+  number_of_students                       Int
+  monthly_allowed_practice_speaking_tests  Int       @default(0)
+  monthly_allowed_practice_reading_tests   Int       @default(0)
+  monthly_allowed_practice_writing_tests   Int       @default(0)
+  monthly_allowed_practice_listening_tests Int       @default(0)
+  monthly_subscription                     Decimal
+  created_time                             DateTime  @default(now())
+  last_modified_time                       DateTime  @updatedAt
+  admin                                    admin?    @relation()
+  students                                 student[]
+  teachers                                 teacher[]
 }
 
 //* -------------------------------------------------------------------------------------------------------- *//
 //* User Related Models
 //* -------------------------------------------------------------------------------------------------------- *//
+
+model super_admin {
+  super_admin_id            String   @id @default(uuid())
+  super_admin_email         String   @db.VarChar(50)
+  super_admin_mobile_number String   @db.VarChar(15)
+  created_time              DateTime @default(now())
+  last_modified_time        DateTime @updatedAt
+}
 
 model admin {
   admin_id            String       @id @default(uuid())

@@ -97,8 +97,9 @@ export enum SigninResponseStatus {
 
 export enum UserTypes {
   STUDENT = "Student",
-  ADMIN = "Admin",
+  ORG_ADMIN = "Organization Admin",
   TEACHER = "Teacher",
+  SUPER_ADMIN = "Super Admin",
 }
 
 export enum CognitoUserGroups {
