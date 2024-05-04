@@ -14,6 +14,8 @@ class CognitoUserAuthorizer implements UserAuthorizer {
     this.cognitoGroupUserTypeMap = new Map([
       [CognitoUserGroups.STUDENT_GROUP, UserTypes.STUDENT],
       [CognitoUserGroups.TEACHER_GROUP, UserTypes.TEACHER],
+      [CognitoUserGroups.ORG_ADMIN_GROUP, UserTypes.ORG_ADMIN],
+      [CognitoUserGroups.SUPER_ADMIN_GROUP, UserTypes.SUPER_ADMIN],
     ]);
   }
 
