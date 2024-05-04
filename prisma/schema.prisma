@@ -39,6 +39,7 @@ model super_admin {
   super_admin_id            String   @id @default(uuid())
   super_admin_email         String   @db.VarChar(50)
   super_admin_mobile_number String   @db.VarChar(15)
+  super_admin_name          String   @default("super_admin")
   created_time              DateTime @default(now())
   last_modified_time        DateTime @updatedAt
 }
@@ -47,6 +48,7 @@ model admin {
   admin_id            String       @id @default(uuid())
   admin_email         String       @db.VarChar(50)
   admin_mobile_number String       @db.VarChar(15)
+  admin_name          String       @default("org_admin")
   created_time        DateTime     @default(now())
   last_modified_time  DateTime     @updatedAt
   org                 organization @relation(fields: [org_id], references: [org_id])
