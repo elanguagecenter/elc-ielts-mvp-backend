@@ -1,27 +1,49 @@
 import IOrganizationRepository from "../../repository/organization/IOrganizationRepository";
-import { CreateOrganizationPayload, OrganizationResponse } from "../../utils/types/common/types";
+import IUsersRepository from "../../repository/users/IUsersRepository";
+import { CreateOrganizationPayload, OrgAdminResponse, OrganizationResponse } from "../../utils/types/common/types";
 import CommonValidator from "../../utils/validators/CommonValidator";
 import IOrganizationService from "./IOrganizationService";
 
 class OrganizationService implements IOrganizationService {
   private organizationRepository: IOrganizationRepository;
+  private userRepository: IUsersRepository;
 
-  constructor(organizationRepository: IOrganizationRepository) {
+  constructor(organizationRepository: IOrganizationRepository, userRepository: IUsersRepository) {
     this.organizationRepository = organizationRepository;
+    this.userRepository = userRepository;
   }
 
-  async createOrg(payload: CreateOrganizationPayload): Promise<OrganizationResponse> {
+  async getAll(page: string, limit: string): Promise<Array<OrganizationResponse>> {
+    const pageNum: number = CommonValidator.validatePositiveNumberString(page, "Page");
+    const limitNum: number = CommonValidator.validatePositiveNumberString(limit, "Limit");
+    CommonValidator.validateLowerLimit(pageNum, 1, "Page");
+    CommonValidator.validateLowerLimit(limitNum, 0, "Limit");
+    return await this.organizationRepository.getAllOrgs(pageNum, limitNum);
+  }
+
+  async createOrg(payload: CreateOrganizationPayload<string>): Promise<OrganizationResponse> {
     CommonValidator.validateNotEmptyOrBlankString(payload.org_name, "Org Name");
     CommonValidator.validateNotEmptyOrBlankString(payload.org_email, "Org Email");
     CommonValidator.validateNotEmptyOrBlankString(payload.org_mobile_number, "Org Mobile");
     CommonValidator.validateNotEmptyOrBlankString(payload.adminId, "Admin Id");
-    CommonValidator.vlidatePositiveNumber(payload.number_of_students, "Number of Students");
-    CommonValidator.vlidatePositiveNumber(payload.monthly_subscription, "Monthly Subscription");
-    CommonValidator.vlidatePositiveNumber(payload.monthly_allowed_practice_listening_tests, "Allowed Listening Tests");
-    CommonValidator.vlidatePositiveNumber(payload.monthly_allowed_practice_reading_tests, "Allowed Reading Tests");
-    CommonValidator.vlidatePositiveNumber(payload.monthly_allowed_practice_speaking_tests, "Allowed Speaking Tests");
-    CommonValidator.vlidatePositiveNumber(payload.monthly_allowed_practice_writing_tests, "Allowed Writing Tests");
-    return await this.organizationRepository.create(payload);
+    const validatedPayload: CreateOrganizationPayload<number> = {
+      org_name: payload.org_name,
+      org_email: payload.org_email,
+      org_mobile_number: payload.org_mobile_number,
+      adminId: payload.adminId,
+      number_of_students: CommonValidator.validatePositiveNumberString(payload.number_of_students.toString(), "Number of Students"),
+      monthly_subscription: CommonValidator.validatePositiveNumberString(payload.monthly_subscription.toString(), "Monthly Subscription"),
+      monthly_allowed_practice_listening_tests: CommonValidator.validatePositiveNumberString(
+        payload.monthly_allowed_practice_listening_tests.toString(),
+        "Allowed Listening Tests"
+      ),
+      monthly_allowed_practice_speaking_tests: CommonValidator.validatePositiveNumberString(payload.monthly_allowed_practice_speaking_tests.toString(), "Allowed Speaking Tests"),
+      monthly_allowed_practice_writing_tests: CommonValidator.validatePositiveNumberString(payload.monthly_allowed_practice_writing_tests.toString(), "Allowed Writing Tests"),
+      monthly_allowed_practice_reading_tests: CommonValidator.validatePositiveNumberString(payload.monthly_allowed_practice_reading_tests.toString(), "Allowed Reading Tests"),
+    };
+    const orgAdmin: OrgAdminResponse = await this.userRepository.getOrgAdminById(payload.adminId);
+    CommonValidator.validateTrueValue(orgAdmin.org_id === null, "Org admin already has been allocated to a organization");
+    return await this.organizationRepository.create(validatedPayload);
   }
 
   async deleteOrg(orgId: string): Promise<OrganizationResponse> {

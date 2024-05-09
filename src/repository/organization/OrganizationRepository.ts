@@ -26,7 +26,7 @@ class OrganizationRepository implements IOrganizationRepository {
   }
 
   @Handle
-  async create(data: CreateOrganizationPayload): Promise<OrganizationResponse> {
+  async create(data: CreateOrganizationPayload<number>): Promise<OrganizationResponse> {
     return await prisma.organization.create({
       data: {
         org_name: data.org_name,
@@ -52,6 +52,18 @@ class OrganizationRepository implements IOrganizationRepository {
     return await prisma.organization.delete({
       where: {
         org_id: orgId,
+      },
+    });
+  }
+
+  @Handle
+  async getAllOrgs(page: number, limit: number): Promise<Array<OrganizationResponse>> {
+    const skip = (page - 1) * limit;
+    return await prisma.organization.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        last_modified_time: "desc",
       },
     });
   }

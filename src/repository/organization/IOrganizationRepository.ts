@@ -2,7 +2,8 @@ import { CreateOrganizationPayload, OrganizationResponse } from "../../utils/typ
 
 interface IOrganizationRepository {
   getById(orgId: string): Promise<OrganizationResponse>;
-  create(data: CreateOrganizationPayload): Promise<OrganizationResponse>;
+  getAllOrgs(page: number, limit: number): Promise<Array<OrganizationResponse>>;
+  create(data: CreateOrganizationPayload<number>): Promise<OrganizationResponse>;
   delete(orgId: string): Promise<OrganizationResponse>;
 }
 
