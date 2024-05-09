@@ -5,8 +5,8 @@ const authoute = express.Router({ mergeParams: true });
 const authController: AuthController = new AuthController();
 
 // routes begining /ielts/auth
-authoute.post("/students", authController.signInStudent.bind(authController));
-authoute.post("/students/cognitoChallange", authController.completeCognitoChallange.bind(authController));
-authoute.delete("/students", authController.studentSignout.bind(authController));
+authoute.post("/users", authController.signInUser.bind(authController));
+authoute.post("/users/cognitoChallange", authController.completeCognitoChallange.bind(authController));
+authoute.delete("/users", authController.userSignout.bind(authController));
 
 export default authoute;
