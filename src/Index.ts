@@ -15,6 +15,7 @@ import listeningTestRoute from "./routes/ListeningTestRoute";
 import resourceRoute from "./routes/ResourceRoute";
 import authoute from "./routes/AuthRoute";
 import userRoute from "./routes/UserRoute";
+import organizationRoute from "./routes/OrganizationRoute";
 
 const app: Express = express();
 const server: http.Server = http.createServer(app);
@@ -38,6 +39,7 @@ app.use("/ielts/test/:testId/reading", readingTestRoute);
 app.use("/ielts/test/:testId/listening", listeningTestRoute);
 app.use("/ielts/test", testRoute);
 app.use("/ielts/resources", resourceRoute);
+app.use("/ielts/organization", organizationRoute);
 /* Global middlewares
  * 1- Error handling middleware
  */

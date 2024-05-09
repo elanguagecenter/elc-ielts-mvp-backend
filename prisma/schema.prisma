@@ -36,28 +36,30 @@ model organization {
 //* -------------------------------------------------------------------------------------------------------- *//
 
 model super_admin {
-  super_admin_id            String   @id @default(uuid())
-  super_admin_email         String   @db.VarChar(50)
-  super_admin_mobile_number String   @db.VarChar(15)
-  created_time              DateTime @default(now())
-  last_modified_time        DateTime @updatedAt
+  id                 String   @id @default(uuid())
+  email              String   @db.VarChar(50)
+  mobile_number      String   @db.VarChar(15)
+  name               String   @default("super_admin")
+  created_time       DateTime @default(now())
+  last_modified_time DateTime @updatedAt
 }
 
 model admin {
-  admin_id            String       @id @default(uuid())
-  admin_email         String       @db.VarChar(50)
-  admin_mobile_number String       @db.VarChar(15)
-  created_time        DateTime     @default(now())
-  last_modified_time  DateTime     @updatedAt
-  org                 organization @relation(fields: [org_id], references: [org_id])
-  org_id              String       @unique
+  id                 String        @id @default(uuid())
+  email              String        @db.VarChar(50)
+  mobile_number      String        @db.VarChar(15)
+  name               String        @default("org_admin")
+  created_time       DateTime      @default(now())
+  last_modified_time DateTime      @updatedAt
+  org                organization? @relation(fields: [org_id], references: [org_id])
+  org_id             String?       @unique
 }
 
 model student {
-  student_id               String                    @id @default(uuid())
-  student_email            String                    @db.VarChar(50)
-  student_name             String                    @default("student") @db.VarChar(100)
-  student_mobile_number    String                    @db.VarChar(15)
+  id                       String                    @id @default(uuid())
+  email                    String                    @db.VarChar(50)
+  name                     String                    @default("student") @db.VarChar(100)
+  mobile_number            String                    @db.VarChar(15)
   created_time             DateTime                  @default(now())
   last_modified_time       DateTime                  @updatedAt
   org                      organization              @relation(fields: [org_id], references: [org_id])
@@ -70,10 +72,10 @@ model student {
 }
 
 model teacher {
-  teacher_id              String                   @id @default(uuid())
-  teacher_email           String                   @db.VarChar(50)
-  teacher_name            String                   @default("teacher") @db.VarChar(100)
-  teacher_mobile_number   String                   @db.VarChar(15)
+  id                      String                   @id @default(uuid())
+  email                   String                   @db.VarChar(50)
+  name                    String                   @default("teacher") @db.VarChar(100)
+  mobile_number           String                   @db.VarChar(15)
   created_time            DateTime                 @default(now())
   last_modified_time      DateTime                 @updatedAt
   org                     organization             @relation(fields: [org_id], references: [org_id])
@@ -92,7 +94,7 @@ model test {
   current_status     String          @db.VarChar(50)
   created_time       DateTime        @default(now())
   last_modified_time DateTime        @updatedAt
-  student            student         @relation(fields: [student_id], references: [student_id])
+  student            student         @relation(fields: [student_id], references: [id])
   student_id         String
   test_statuses      test_status[]
   speaking_test      speaking_test?
@@ -164,9 +166,9 @@ model practice_speaking_test {
   last_modified_time              DateTime                        @updatedAt
   practice_speaking_test_statuses practice_speaking_test_status[]
   practice_speaking_test_stages   practice_speaking_test_stage[]
-  student                         student                         @relation(fields: [student_id], references: [student_id])
+  student                         student                         @relation(fields: [student_id], references: [id])
   student_id                      String
-  evaluator                       teacher?                        @relation(fields: [evaluator_id], references: [teacher_id])
+  evaluator                       teacher?                        @relation(fields: [evaluator_id], references: [id])
   evaluator_id                    String?
 }
 
@@ -242,7 +244,7 @@ model practice_writing_test {
   current_status                 String                         @db.VarChar(50)
   created_time                   DateTime                       @default(now())
   last_modified_time             DateTime                       @updatedAt
-  student                        student                        @relation(fields: [student_id], references: [student_id])
+  student                        student                        @relation(fields: [student_id], references: [id])
   student_id                     String
   practice_writing_test_statuses practice_writing_test_status[]
   practice_writing_test_stages   practice_writing_test_stage[]
@@ -335,7 +337,7 @@ model practice_reading_test {
   current_status                 String                         @db.VarChar(50)
   created_time                   DateTime                       @default(now())
   last_modified_time             DateTime                       @updatedAt
-  student                        student                        @relation(fields: [student_id], references: [student_id])
+  student                        student                        @relation(fields: [student_id], references: [id])
   student_id                     String
   practice_reading_test_stages   practice_reading_test_stage[]
   practice_reading_test_statuses practice_reading_test_status[]
@@ -441,7 +443,7 @@ model practice_listening_test {
   current_status                   String                           @db.VarChar(50)
   created_time                     DateTime                         @default(now())
   last_modified_time               DateTime                         @updatedAt
-  student                          student                          @relation(fields: [student_id], references: [student_id])
+  student                          student                          @relation(fields: [student_id], references: [id])
   student_id                       String
   practice_listening_test_statuses practice_listening_test_status[]
   practice_listening_test_stages   practice_listening_test_stage[]
