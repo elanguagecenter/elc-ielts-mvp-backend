@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "speaking_test" ALTER COLUMN "current_status" SET DATA TYPE VARCHAR(50),
+ALTER COLUMN "name" SET DATA TYPE VARCHAR(256);
