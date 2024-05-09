@@ -14,4 +14,8 @@ userRoute.get("/admins/fresh", CognitoAuthMiddleware, EndPointAccessVerifyMiddle
 userRoute.get("/students", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.allAdminAccess, userController.getStudents.bind(userController));
 userRoute.get("/teachers", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.allAdminAccess, userController.getTeachers.bind(userController));
 
+userRoute.delete("/admins/:adminId", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.allAdminAccess, userController.deleteOrgAdmin.bind(userController));
+userRoute.delete("/teachers/:teacherId", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.allAdminAccess, userController.deleteTeacher.bind(userController));
+userRoute.delete("/students/:studentId", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.allAdminAccess, userController.deleteStudent.bind(userController));
+
 export default userRoute;

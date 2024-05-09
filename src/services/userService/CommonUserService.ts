@@ -5,11 +5,14 @@ import {
   AdminCreateUserCommand,
   AdminCreateUserCommandInput,
   AdminCreateUserCommandOutput,
+  AdminDeleteUserCommand,
+  AdminDeleteUserCommandInput,
+  AdminDeleteUserCommandOutput,
 } from "@aws-sdk/client-cognito-identity-provider";
 import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 import IUsersRepository from "../../repository/users/IUsersRepository";
 import { CognitoUserGroups, GetAdminTypes, UserTypes } from "../../utils/types/common/common";
-import { CreateUserPayload, OrgAdminResponse, UserReponse } from "../../utils/types/common/types";
+import { CreateUserPayload, OrgAdminResponse, UserDeletePayload, UserReponse } from "../../utils/types/common/types";
 import CommonValidator from "../../utils/validators/CommonValidator";
 import IUserService from "./IUserService";
 import configs from "../../config/configs";
@@ -22,9 +25,10 @@ class CommonUserService implements IUserService {
   private getSelfUserExecMap: Map<string, (id: string) => Promise<UserReponse>>;
   private getAllStudentsExecMap: Map<string, (id: string, page: number, limit: number) => Promise<Array<UserReponse>>>;
   private getAllTeacherExecMap: Map<string, (id: string, page: number, limit: number) => Promise<Array<UserReponse>>>;
-  private createUserPermissionLogicMap: Map<string, (userType: string) => boolean>;
+  private createAdnDeleteUserPermissionLogicMap: Map<string, (userType: string) => boolean>;
   private userTypeCognitoGroupMap: Map<string, string>;
   private createUserExecMap: Map<string, (data: CreateUserPayload, userId: string) => Promise<UserReponse>>;
+  private deleteUserExecMap: Map<string, (payLoad: UserDeletePayload) => Promise<UserReponse>>;
 
   constructor(userRepository: IUsersRepository, organizationRepository: IOrganizationRepository) {
     this.userRepository = userRepository;
@@ -51,7 +55,7 @@ class CommonUserService implements IUserService {
       [UserTypes.SUPER_ADMIN, this.getAllTeachersByOrgId.bind(this)],
     ]);
 
-    this.createUserPermissionLogicMap = new Map([
+    this.createAdnDeleteUserPermissionLogicMap = new Map([
       [UserTypes.SUPER_ADMIN, (userType: string) => userType === UserTypes.ORG_ADMIN],
       [UserTypes.ORG_ADMIN, (userType: string) => userType === UserTypes.STUDENT || userType === UserTypes.TEACHER],
     ]);
@@ -67,6 +71,12 @@ class CommonUserService implements IUserService {
       [UserTypes.TEACHER, this.userRepository.createTeacher.bind(this.userRepository)],
       [UserTypes.STUDENT, this.userRepository.createStudent.bind(this.userRepository)],
     ]);
+
+    this.deleteUserExecMap = new Map([
+      [UserTypes.ORG_ADMIN, this.userRepository.deleteOrgAdminById.bind(this.userRepository)],
+      [UserTypes.TEACHER, this.userRepository.deleteTeacherById.bind(this.userRepository)],
+      [UserTypes.STUDENT, this.userRepository.deleteStudentById.bind(this.userRepository)],
+    ]);
   }
 
   async createUser(userTypeInToken: string, userType: string, userId: string, payload: CreateUserPayload): Promise<UserReponse> {
@@ -74,10 +84,10 @@ class CommonUserService implements IUserService {
     CommonValidator.validateParamInADefinedValues(userType, [UserTypes.ORG_ADMIN, UserTypes.TEACHER, UserTypes.STUDENT], "User Type");
     CommonValidator.validateNotEmptyOrBlankString(userId, "User ID");
 
-    const permissionVerifierFunc: (userType: string) => boolean = this.createUserPermissionLogicMap.get(userTypeInToken) || (() => false);
+    const permissionVerifierFunc: (userType: string) => boolean = this.createAdnDeleteUserPermissionLogicMap.get(userTypeInToken) || (() => false);
     CommonValidator.validateTrueValue(permissionVerifierFunc(userType), `${userTypeInToken} user doesn't have permission to create the requested user type`);
 
-    this.validateCreateUserPayload(payload, userType);
+    this.validateCreateUserPayload(payload);
     if (userType != UserTypes.ORG_ADMIN) {
       const orgAdmin: UserReponse = await this.getUser(userTypeInToken, userId);
       payload.org_id = orgAdmin.org_id || "";
@@ -91,6 +101,30 @@ class CommonUserService implements IUserService {
     const userCreateDbFunc: (data: CreateUserPayload, userId: string) => Promise<UserReponse> =
       this.createUserExecMap.get(userType) || ((data: CreateUserPayload, userId: string) => Promise.reject(new ELCIELTSInternalError("Undefined function for create user")));
     return await userCreateDbFunc(payload, generatedUserId);
+  }
+
+  async deleteUser(userTypeInToken: string, userId: string, adminUserId: string, userType: string): Promise<UserReponse> {
+    CommonValidator.validateParamInADefinedValues(userTypeInToken, [UserTypes.ORG_ADMIN, UserTypes.SUPER_ADMIN], "Admin Type");
+    CommonValidator.validateNotEmptyOrBlankString(userId, "User ID");
+    CommonValidator.validateNotEmptyOrBlankString(adminUserId, "Admin ID");
+
+    const permissionVerifierFunc: (userType: string) => boolean = this.createAdnDeleteUserPermissionLogicMap.get(userTypeInToken) || (() => false);
+    CommonValidator.validateTrueValue(permissionVerifierFunc(userType), `${userTypeInToken} user doesn't have permission to delete the user type`);
+
+    const deletePayload: UserDeletePayload = {
+      userId: userId,
+    };
+
+    if (userType != UserTypes.ORG_ADMIN) {
+      const orgAdmin: UserReponse = await this.getUser(userTypeInToken, adminUserId);
+      deletePayload.orgId = orgAdmin.org_id || "";
+    }
+
+    const userDeleteDbFunc: (deletePayload: UserDeletePayload) => Promise<UserReponse> =
+      this.deleteUserExecMap.get(userType) || ((deletePayload: UserDeletePayload) => Promise.reject(new ELCIELTSInternalError("Undefined function for delete user")));
+    const user: UserReponse = await userDeleteDbFunc(deletePayload);
+    await this.deleteUserInCognito(user.email);
+    return user;
   }
 
   async getUser(userTypeInToken: string, userId: string): Promise<UserReponse> {
@@ -134,10 +168,19 @@ class CommonUserService implements IUserService {
     return await func(userTypeInToken === UserTypes.ORG_ADMIN ? userId : orgId, pageNum, limitNum);
   }
 
-  private validateCreateUserPayload(payload: CreateUserPayload, userType: string) {
+  private validateCreateUserPayload(payload: CreateUserPayload) {
     CommonValidator.validateNotEmptyOrBlankString(payload.email, "Email");
     CommonValidator.validateNotEmptyOrBlankString(payload.mobile_number, "Mobile");
     CommonValidator.validateNotEmptyOrBlankString(payload.name, "Name");
+  }
+
+  private async deleteUserInCognito(userName: string): Promise<AdminDeleteUserCommandOutput> {
+    const input: AdminDeleteUserCommandInput = {
+      UserPoolId: configs.cognito_pool_id,
+      Username: userName,
+    };
+    const createUserCommand: AdminDeleteUserCommand = new AdminDeleteUserCommand(input);
+    return await cognitoClient.send(createUserCommand);
   }
 
   private async createUserInCognito(payload: CreateUserPayload): Promise<string> {

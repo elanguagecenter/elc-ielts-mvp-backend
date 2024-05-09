@@ -6,6 +6,7 @@ import { Constants } from "../utils/types/common/constants";
 import { CreateUserPayload, UserReponse } from "../utils/types/common/types";
 import CommonUserRepository from "../repository/users/CommonUserRepository";
 import OrganizationRepository from "../repository/organization/OrganizationRepository";
+import { UserTypes } from "../utils/types/common/common";
 
 class UserController {
   private userService: IUserService;
@@ -25,6 +26,27 @@ class UserController {
     const userType = req.query.userType?.toString() || Constants.EMPTY_STR;
     const payload: CreateUserPayload = req.body;
     const result: UserReponse = await this.userService.createUser(req.userData.userType, userType, req.userData.userId, payload);
+    res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
+  async deleteOrgAdmin(req: Request, res: Response, next: NextFunction) {
+    const userId = req.params.adminId;
+    const result: UserReponse = await this.userService.deleteUser(req.userData.userType, userId, req.userData.userId, UserTypes.ORG_ADMIN);
+    res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
+  async deleteTeacher(req: Request, res: Response, next: NextFunction) {
+    const userId = req.params.teacherId;
+    const result: UserReponse = await this.userService.deleteUser(req.userData.userType, userId, req.userData.userId, UserTypes.TEACHER);
+    res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
+  async deleteStudent(req: Request, res: Response, next: NextFunction) {
+    const userId = req.params.studentId;
+    const result: UserReponse = await this.userService.deleteUser(req.userData.userType, userId, req.userData.userId, UserTypes.STUDENT);
     res.status(200).send(result);
   }
 

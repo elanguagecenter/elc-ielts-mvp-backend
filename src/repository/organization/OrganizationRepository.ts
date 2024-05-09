@@ -40,7 +40,7 @@ class OrganizationRepository implements IOrganizationRepository {
         monthly_subscription: data.monthly_subscription,
         admin: {
           connect: {
-            admin_id: data.adminId,
+            id: data.adminId,
           },
         },
       },

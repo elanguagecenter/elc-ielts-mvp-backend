@@ -1,7 +1,7 @@
 import prisma from "../../config/DatabaseSource";
 import ELCIELTSNotFoundError from "../../exception/ELCIELTSNotFoundError";
 import Handle from "../../utils/decorators/DBErrorHandlingDecorator";
-import { CreateUserPayload, OrgAdminResponse, StudentResponse, SuperAdminResponse, TeacherResponse, UserReponse } from "../../utils/types/common/types";
+import { CreateUserPayload, OrgAdminResponse, StudentResponse, SuperAdminResponse, TeacherResponse, UserDeletePayload, UserReponse } from "../../utils/types/common/types";
 import IUsersRepository from "./IUsersRepository";
 
 class CommonUserRepository implements IUsersRepository {
@@ -16,10 +16,10 @@ class CommonUserRepository implements IUsersRepository {
   async createStudent(data: CreateUserPayload, userId: string): Promise<UserReponse> {
     return await prisma.student.create({
       data: {
-        student_id: userId,
-        student_email: data.email,
-        student_name: data.name,
-        student_mobile_number: data.mobile_number,
+        id: userId,
+        email: data.email,
+        name: data.name,
+        mobile_number: data.mobile_number,
         org_id: data.org_id,
       },
     });
@@ -29,10 +29,10 @@ class CommonUserRepository implements IUsersRepository {
   async createTeacher(data: CreateUserPayload, userId: string): Promise<UserReponse> {
     return await prisma.teacher.create({
       data: {
-        teacher_id: userId,
-        teacher_email: data.email,
-        teacher_name: data.name,
-        teacher_mobile_number: data.mobile_number,
+        id: userId,
+        email: data.email,
+        name: data.name,
+        mobile_number: data.mobile_number,
         org_id: data.org_id,
       },
     });
@@ -42,10 +42,36 @@ class CommonUserRepository implements IUsersRepository {
   async createOrgAdmin(data: CreateUserPayload, userId: string): Promise<UserReponse> {
     return await prisma.admin.create({
       data: {
-        admin_id: userId,
-        admin_email: data.email,
-        admin_name: data.name,
-        admin_mobile_number: data.mobile_number,
+        id: userId,
+        email: data.email,
+        name: data.name,
+        mobile_number: data.mobile_number,
+      },
+    });
+  }
+
+  async deleteStudentById(payLoad: UserDeletePayload): Promise<UserReponse> {
+    return await prisma.student.delete({
+      where: {
+        id: payLoad.userId,
+        org_id: payLoad.orgId,
+      },
+    });
+  }
+
+  async deleteTeacherById(payLoad: UserDeletePayload): Promise<UserReponse> {
+    return await prisma.teacher.delete({
+      where: {
+        id: payLoad.userId,
+        org_id: payLoad.orgId,
+      },
+    });
+  }
+
+  async deleteOrgAdminById(payLoad: UserDeletePayload): Promise<UserReponse> {
+    return await prisma.admin.delete({
+      where: {
+        id: payLoad.userId,
       },
     });
   }
@@ -55,7 +81,7 @@ class CommonUserRepository implements IUsersRepository {
     return await prisma.teacher
       .findUniqueOrThrow({
         where: {
-          teacher_id: teacherId,
+          id: teacherId,
         },
       })
       .catch(() => {
@@ -68,7 +94,7 @@ class CommonUserRepository implements IUsersRepository {
     return await prisma.student
       .findUniqueOrThrow({
         where: {
-          student_id: studentId,
+          id: studentId,
         },
       })
       .catch(() => {
@@ -96,7 +122,7 @@ class CommonUserRepository implements IUsersRepository {
     return await prisma.admin
       .findUniqueOrThrow({
         where: {
-          admin_id: adminId,
+          id: adminId,
         },
       })
       .catch(() => {
@@ -109,7 +135,7 @@ class CommonUserRepository implements IUsersRepository {
     return await prisma.super_admin
       .findUniqueOrThrow({
         where: {
-          super_admin_id: superAdmin,
+          id: superAdmin,
         },
       })
       .catch(() => {
@@ -124,7 +150,7 @@ class CommonUserRepository implements IUsersRepository {
       where: {
         org: {
           admin: {
-            admin_id: adminId,
+            id: adminId,
           },
         },
       },
@@ -158,7 +184,7 @@ class CommonUserRepository implements IUsersRepository {
       where: {
         org: {
           admin: {
-            admin_id: adminId,
+            id: adminId,
           },
         },
       },
