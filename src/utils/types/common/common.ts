@@ -107,6 +107,11 @@ export enum UserTypes {
   SUPER_ADMIN = "Super Admin",
 }
 
+export enum GetAdminTypes {
+  ALL = "all",
+  FRESH = "fresh",
+}
+
 export enum CognitoUserGroups {
   STUDENT_GROUP = "elc-b2b-ielts-mvp-dev-student-user-group",
   TEACHER_GROUP = "elc-b2b-ielts-mvp-dev-teacher-user-group",
