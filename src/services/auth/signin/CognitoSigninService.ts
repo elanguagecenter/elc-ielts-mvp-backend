@@ -33,6 +33,8 @@ class CognitoSigninService implements ISigninService {
     this.cognitoGroupUserTypeMap = new Map([
       [CognitoUserGroups.STUDENT_GROUP, UserTypes.STUDENT],
       [CognitoUserGroups.TEACHER_GROUP, UserTypes.TEACHER],
+      [CognitoUserGroups.SUPER_ADMIN_GROUP, UserTypes.SUPER_ADMIN],
+      [CognitoUserGroups.ORG_ADMIN_GROUP, UserTypes.ORG_ADMIN],
     ]);
   }
 
@@ -40,7 +42,7 @@ class CognitoSigninService implements ISigninService {
     return this.instance;
   }
 
-  async studentSignIn(payLoad: UserSigninPayload): Promise<UserSigninResponse> {
+  async userSignIn(payLoad: UserSigninPayload): Promise<UserSigninResponse> {
     CommonValidator.validateNotEmptyOrBlankString(payLoad.userName, "Student User Name");
     CommonValidator.validateNotEmptyOrBlankString(payLoad.password, "password");
     const params: InitiateAuthCommandInput = {
@@ -80,7 +82,7 @@ class CognitoSigninService implements ISigninService {
     return await challangeExecution(payLoad.userName, payLoad.newPassword, payLoad.cognitoSession);
   }
 
-  async studentSignout(accessToken: string): Promise<GlobalSignOutCommandOutput> {
+  async userSignout(accessToken: string): Promise<GlobalSignOutCommandOutput> {
     CommonValidator.validateNotEmptyOrBlankString(accessToken, "accessToken");
     const command = new GlobalSignOutCommand({ AccessToken: accessToken });
     return await this.cognitoClient.send(command);

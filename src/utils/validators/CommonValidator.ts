@@ -1,15 +1,15 @@
 import ELCIELTSDataInvalidError from "../../exception/ELCIELTSDataInvalidError";
 import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 
-const validateNotNull = <T>(param: T | undefined, paramName: string) => {
-  if (param === null || param === undefined || param === "undefined") {
+const validateNotNull = <T>(param: T | undefined, paramName: string, required: boolean = true) => {
+  if (required && (param === null || param === undefined || param === "undefined")) {
     throw new ELCIELTSDataInvalidError(`${paramName} value should not be null or undefined`);
   }
 };
 
-const validateNotEmptyOrBlankString = (param: string | undefined, paramName: string) => {
-  validateNotNull<string>(param, paramName);
-  if (param!.trim().length == 0) {
+const validateNotEmptyOrBlankString = (param: string | undefined, paramName: string, required: boolean = true) => {
+  validateNotNull<string>(param, paramName, required);
+  if (required && param!.trim().length == 0) {
     throw new ELCIELTSDataInvalidError(`${paramName} value should not be empty or blank`);
   }
 };
@@ -27,6 +27,12 @@ const validatePositiveNumberString = (param: string, paramName: string): number 
     return number;
   } else {
     throw new ELCIELTSDataInvalidError(`${paramName} value should be a number`);
+  }
+};
+
+const validateLowerLimit = (param: number, lowerBound: number, paramName: string) => {
+  if (param < lowerBound) {
+    throw new ELCIELTSDataInvalidError(`${paramName} value should be greater than ${lowerBound}`);
   }
 };
 
@@ -82,4 +88,5 @@ export default {
   validateTrueValue: validateTrueValue,
   arraySizeValidator: arraySizeValidator,
   validateJsonString: validateJsonString,
+  validateLowerLimit: validateLowerLimit,
 };

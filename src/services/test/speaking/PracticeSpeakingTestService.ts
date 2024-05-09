@@ -84,7 +84,7 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
     await this.createSpeakingTestStageThree(speakingTest.practice_speaking_test_id, speakingTestStage1.generated_question);
 
     const student: StudentResponse = await this.userRepository.getStudentById(studentId);
-    await this.updateEvaluatorId(speakingTest.practice_speaking_test_id, student.org_id);
+    await this.updateEvaluatorId(speakingTest.practice_speaking_test_id, student.org_id!);
 
     return await this.practiceSpeakingTestRepository.updateStatusByStudentIdAndId(speakingTest.practice_speaking_test_id, TestStatus.SPEAKING_TEST_CREATED, studentId);
   }
@@ -189,8 +189,8 @@ class PracticeSpeakingTestService implements ISpeakingTestService {
 
   private async updateEvaluatorId(speakingTestId: string, orgId: string) {
     const fewestSpeakingTestTeacher = await this.userRepository.getTeachersWithFewestSpekaingTests(orgId);
-    console.log(`fewestSpeakingTestTeacher: ${fewestSpeakingTestTeacher[0].teacher_name}`);
-    const eligibleEvaluatorId: string | null = fewestSpeakingTestTeacher[0].teacher_id || null;
+    console.log(`fewestSpeakingTestTeacher: ${fewestSpeakingTestTeacher[0].name}`);
+    const eligibleEvaluatorId: string | null = fewestSpeakingTestTeacher[0].id || null;
     console.log(`eligibel evaluator id: ${eligibleEvaluatorId}`);
     await this.practiceSpeakingTestRepository.updateEvaluatorId(speakingTestId, eligibleEvaluatorId);
   }

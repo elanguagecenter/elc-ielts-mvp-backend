@@ -2,9 +2,9 @@ import { GlobalSignOutCommandOutput } from "@aws-sdk/client-cognito-identity-pro
 import { CognitoChallangePayload, UserSigninPayload, UserSigninResponse } from "../../../utils/types/common/types";
 
 interface ISigninService {
-  studentSignIn(payLoad: UserSigninPayload): Promise<UserSigninResponse>;
+  userSignIn(payLoad: UserSigninPayload): Promise<UserSigninResponse>;
   completeCognitoChallange(payLoad: CognitoChallangePayload): Promise<UserSigninResponse>;
-  studentSignout(accessToken: string): Promise<GlobalSignOutCommandOutput>;
+  userSignout(accessToken: string): Promise<GlobalSignOutCommandOutput>;
 }
 
 export default ISigninService;

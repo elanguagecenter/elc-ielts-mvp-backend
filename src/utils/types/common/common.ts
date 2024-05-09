@@ -71,6 +71,11 @@ export enum SpeakingTestOperation {
   EVALUATE = "evaluate",
 }
 
+export enum GetUserOperation {
+  ALL = "all",
+  SELF = "self",
+}
+
 export enum TestQuestionTypes {
   MULTIPLE_CHOICE = "Multiple Choice",
   MATCHING_HEADINGS = "Matching Headings",
@@ -97,11 +102,19 @@ export enum SigninResponseStatus {
 
 export enum UserTypes {
   STUDENT = "Student",
-  ADMIN = "Admin",
+  ORG_ADMIN = "Organization Admin",
   TEACHER = "Teacher",
+  SUPER_ADMIN = "Super Admin",
+}
+
+export enum GetAdminTypes {
+  ALL = "all",
+  FRESH = "fresh",
 }
 
 export enum CognitoUserGroups {
   STUDENT_GROUP = "elc-b2b-ielts-mvp-dev-student-user-group",
   TEACHER_GROUP = "elc-b2b-ielts-mvp-dev-teacher-user-group",
+  ORG_ADMIN_GROUP = "elc-b2b-ielts-mvp-dev-org-admin-user-group",
+  SUPER_ADMIN_GROUP = "elc-b2b-ielts-mvp-dev-super-admin-user-group",
 }
