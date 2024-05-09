@@ -6,7 +6,7 @@ function Handle(target: any, methodName: string, descriptor: PropertyDescriptor)
     try {
       return await originalMethod.call(this, ...args);
     } catch (err) {
-      console.error(err);
+      console.log(err);
       if (err instanceof ELCIELTSInternalError) {
         throw err;
       } else {
