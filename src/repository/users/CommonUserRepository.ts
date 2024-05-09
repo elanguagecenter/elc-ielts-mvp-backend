@@ -46,7 +46,6 @@ class CommonUserRepository implements IUsersRepository {
         admin_email: data.email,
         admin_name: data.name,
         admin_mobile_number: data.mobile_number,
-        org_id: data.org_id,
       },
     });
   }
@@ -119,7 +118,8 @@ class CommonUserRepository implements IUsersRepository {
   }
 
   @Handle
-  async getAllStudentsByOrgAdmin(adminId: string): Promise<Array<StudentResponse>> {
+  async getAllStudentsByOrgAdmin(adminId: string, page: number, limit: number): Promise<Array<StudentResponse>> {
+    const skip = (page - 1) * limit;
     return await prisma.student.findMany({
       where: {
         org: {
@@ -128,20 +128,32 @@ class CommonUserRepository implements IUsersRepository {
           },
         },
       },
-    });
-  }
-
-  @Handle
-  async getAllStudentsByOrg(orgId: string): Promise<Array<StudentResponse>> {
-    return await prisma.student.findMany({
-      where: {
-        org_id: orgId,
+      skip: skip,
+      take: limit,
+      orderBy: {
+        last_modified_time: "desc",
       },
     });
   }
 
   @Handle
-  async getAllTeachersByOrgAdmin(adminId: string): Promise<Array<TeacherResponse>> {
+  async getAllStudentsByOrg(orgId: string, page: number, limit: number): Promise<Array<StudentResponse>> {
+    const skip = (page - 1) * limit;
+    return await prisma.student.findMany({
+      where: {
+        org_id: orgId,
+      },
+      skip: skip,
+      take: limit,
+      orderBy: {
+        last_modified_time: "desc",
+      },
+    });
+  }
+
+  @Handle
+  async getAllTeachersByOrgAdmin(adminId: string, page: number, limit: number): Promise<Array<TeacherResponse>> {
+    const skip = (page - 1) * limit;
     return await prisma.teacher.findMany({
       where: {
         org: {
@@ -150,14 +162,47 @@ class CommonUserRepository implements IUsersRepository {
           },
         },
       },
+      skip: skip,
+      take: limit,
+      orderBy: {
+        last_modified_time: "desc",
+      },
     });
   }
 
   @Handle
-  async getAllTeachersByOrg(orgId: string): Promise<Array<TeacherResponse>> {
+  async getAllTeachersByOrg(orgId: string, page: number, limit: number): Promise<Array<TeacherResponse>> {
+    const skip = (page - 1) * limit;
     return await prisma.teacher.findMany({
       where: {
         org_id: orgId,
+      },
+      skip: skip,
+      take: limit,
+      orderBy: {
+        last_modified_time: "desc",
+      },
+    });
+  }
+
+  async getAllAdmins(page: number, limit: number): Promise<Array<OrgAdminResponse>> {
+    const skip = (page - 1) * limit;
+    return await prisma.admin.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        last_modified_time: "desc",
+      },
+    });
+  }
+
+  async getFreshAdmins(): Promise<Array<OrgAdminResponse>> {
+    return await prisma.admin.findMany({
+      where: {
+        org_id: null,
+      },
+      orderBy: {
+        last_modified_time: "desc",
       },
     });
   }

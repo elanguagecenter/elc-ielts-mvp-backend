@@ -8,8 +8,8 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 import ELCIELTSInternalError from "../../exception/ELCIELTSInternalError";
 import IUsersRepository from "../../repository/users/IUsersRepository";
-import { CognitoUserGroups, UserTypes } from "../../utils/types/common/common";
-import { CreateUserPayload, UserReponse } from "../../utils/types/common/types";
+import { CognitoUserGroups, GetAdminTypes, UserTypes } from "../../utils/types/common/common";
+import { CreateUserPayload, OrgAdminResponse, UserReponse } from "../../utils/types/common/types";
 import CommonValidator from "../../utils/validators/CommonValidator";
 import IUserService from "./IUserService";
 import configs from "../../config/configs";
@@ -20,8 +20,8 @@ class CommonUserService implements IUserService {
   private userRepository: IUsersRepository;
   private organizationRepository: IOrganizationRepository;
   private getSelfUserExecMap: Map<string, (id: string) => Promise<UserReponse>>;
-  private getAllStudentsExecMap: Map<string, (id: string) => Promise<Array<UserReponse>>>;
-  private getAllTeacherExecMap: Map<string, (id: string) => Promise<Array<UserReponse>>>;
+  private getAllStudentsExecMap: Map<string, (id: string, page: number, limit: number) => Promise<Array<UserReponse>>>;
+  private getAllTeacherExecMap: Map<string, (id: string, page: number, limit: number) => Promise<Array<UserReponse>>>;
   private createUserPermissionLogicMap: Map<string, (userType: string) => boolean>;
   private userTypeCognitoGroupMap: Map<string, string>;
   private createUserExecMap: Map<string, (data: CreateUserPayload, userId: string) => Promise<UserReponse>>;
@@ -77,8 +77,12 @@ class CommonUserService implements IUserService {
     const permissionVerifierFunc: (userType: string) => boolean = this.createUserPermissionLogicMap.get(userTypeInToken) || (() => false);
     CommonValidator.validateTrueValue(permissionVerifierFunc(userType), `${userTypeInToken} user doesn't have permission to create the requested user type`);
 
-    this.validateCreateUserPayload(payload);
-    await this.organizationRepository.getById(payload.org_id);
+    this.validateCreateUserPayload(payload, userType);
+    if (userType != UserTypes.ORG_ADMIN) {
+      const orgAdmin: UserReponse = await this.getUser(userTypeInToken, userId);
+      payload.org_id = orgAdmin.org_id || "";
+      CommonValidator.validateNotEmptyOrBlankString(payload.org_id, "Org admin");
+    }
 
     const generatedUserId: string = await this.createUserInCognito(payload);
     CommonValidator.validateNotEmptyOrBlankString(generatedUserId, "Generated UserId");
@@ -96,25 +100,44 @@ class CommonUserService implements IUserService {
     return await func(userId);
   }
 
-  async getStudents(userTypeInToken: string, orgId: string, userId: string): Promise<Array<UserReponse>> {
-    CommonValidator.validateParamInADefinedValues(userTypeInToken, Object.values(UserTypes), "User Type");
-    const func: (id: string) => Promise<Array<UserReponse>> =
-      this.getAllStudentsExecMap.get(userTypeInToken) || ((id: string) => Promise.reject(new ELCIELTSInternalError("Undefined function for get all students")));
-
-    return await func(userTypeInToken === UserTypes.ORG_ADMIN ? userId : orgId);
-  }
-  async getTeachers(userTypeInToken: string, orgId: string, userId: string): Promise<Array<UserReponse>> {
-    CommonValidator.validateParamInADefinedValues(userTypeInToken, Object.values(UserTypes), "User Type");
-    const func: (id: string) => Promise<Array<UserReponse>> =
-      this.getAllTeacherExecMap.get(userTypeInToken) || ((id: string) => Promise.reject(new ELCIELTSInternalError("Undefined function for get all teachers")));
-    return await func(userTypeInToken === UserTypes.ORG_ADMIN ? userId : orgId);
+  async getAllAdmins(page: string, limit: string): Promise<Array<UserReponse>> {
+    const pageNum: number = CommonValidator.validatePositiveNumberString(page, "Page");
+    const limitNum: number = CommonValidator.validatePositiveNumberString(limit, "Limit");
+    CommonValidator.validateLowerLimit(pageNum, 1, "Page");
+    CommonValidator.validateLowerLimit(limitNum, 0, "Limit");
+    return await this.userRepository.getAllAdmins(pageNum, limitNum);
   }
 
-  private validateCreateUserPayload(payload: CreateUserPayload) {
+  async getFreshAdmins(): Promise<Array<UserReponse>> {
+    return await this.userRepository.getFreshAdmins();
+  }
+
+  async getStudents(userTypeInToken: string, orgId: string, userId: string, page: string, limit: string): Promise<Array<UserReponse>> {
+    CommonValidator.validateParamInADefinedValues(userTypeInToken, Object.values(UserTypes), "User Type");
+    const pageNum: number = CommonValidator.validatePositiveNumberString(page, "Page");
+    const limitNum: number = CommonValidator.validatePositiveNumberString(limit, "Limit");
+    CommonValidator.validateLowerLimit(pageNum, 1, "Page");
+    CommonValidator.validateLowerLimit(limitNum, 0, "Limit");
+    const func: (id: string, page: number, limit: number) => Promise<Array<UserReponse>> =
+      this.getAllStudentsExecMap.get(userTypeInToken) ||
+      ((id: string, page: number, limit: number) => Promise.reject(new ELCIELTSInternalError("Undefined function for get all students")));
+
+    return await func(userTypeInToken === UserTypes.ORG_ADMIN ? userId : orgId, pageNum, limitNum);
+  }
+  async getTeachers(userTypeInToken: string, orgId: string, userId: string, page: string, limit: string): Promise<Array<UserReponse>> {
+    CommonValidator.validateParamInADefinedValues(userTypeInToken, Object.values(UserTypes), "User Type");
+    const pageNum: number = CommonValidator.validatePositiveNumberString(page, "Page");
+    const limitNum: number = CommonValidator.validatePositiveNumberString(limit, "Limit");
+    const func: (id: string, page: number, limit: number) => Promise<Array<UserReponse>> =
+      this.getAllTeacherExecMap.get(userTypeInToken) ||
+      ((id: string, page: number, limit: number) => Promise.reject(new ELCIELTSInternalError("Undefined function for get all teachers")));
+    return await func(userTypeInToken === UserTypes.ORG_ADMIN ? userId : orgId, pageNum, limitNum);
+  }
+
+  private validateCreateUserPayload(payload: CreateUserPayload, userType: string) {
     CommonValidator.validateNotEmptyOrBlankString(payload.email, "Email");
     CommonValidator.validateNotEmptyOrBlankString(payload.mobile_number, "Mobile");
     CommonValidator.validateNotEmptyOrBlankString(payload.name, "Name");
-    CommonValidator.validateNotEmptyOrBlankString(payload.org_id, "Org Id");
   }
 
   private async createUserInCognito(payload: CreateUserPayload): Promise<string> {
@@ -161,25 +184,25 @@ class CommonUserService implements IUserService {
     return this.userRepository.getOrgAdminById(orgAdminId);
   }
 
-  private async getAllStudentsByOrgAdmin(orgAdminId: string): Promise<Array<UserReponse>> {
+  private async getAllStudentsByOrgAdmin(orgAdminId: string, pageNum: number, limitNum: number): Promise<Array<UserReponse>> {
     console.log(orgAdminId);
     CommonValidator.validateNotEmptyOrBlankString(orgAdminId, "Org Admin ID");
-    return await this.userRepository.getAllStudentsByOrgAdmin(orgAdminId);
+    return await this.userRepository.getAllStudentsByOrgAdmin(orgAdminId, pageNum, limitNum);
   }
 
-  private async getAllStudentsByOrgId(orgId: string): Promise<Array<UserReponse>> {
+  private async getAllStudentsByOrgId(orgId: string, pageNum: number, limitNum: number): Promise<Array<UserReponse>> {
     CommonValidator.validateNotEmptyOrBlankString(orgId, "Org ID");
-    return await this.userRepository.getAllStudentsByOrg(orgId);
+    return await this.userRepository.getAllStudentsByOrg(orgId, pageNum, limitNum);
   }
 
-  private async getAllTeachersByOrgAdmin(orgAdminId: string): Promise<Array<UserReponse>> {
+  private async getAllTeachersByOrgAdmin(orgAdminId: string, pageNum: number, limitNum: number): Promise<Array<UserReponse>> {
     CommonValidator.validateNotEmptyOrBlankString(orgAdminId, "Org Admin ID");
-    return await this.userRepository.getAllTeachersByOrgAdmin(orgAdminId);
+    return await this.userRepository.getAllTeachersByOrgAdmin(orgAdminId, pageNum, limitNum);
   }
 
-  private async getAllTeachersByOrgId(orgId: string): Promise<Array<UserReponse>> {
+  private async getAllTeachersByOrgId(orgId: string, pageNum: number, limitNum: number): Promise<Array<UserReponse>> {
     CommonValidator.validateNotEmptyOrBlankString(orgId, "Org ID");
-    return await this.userRepository.getAllTeachersByOrg(orgId);
+    return await this.userRepository.getAllTeachersByOrg(orgId, pageNum, limitNum);
   }
 }
 

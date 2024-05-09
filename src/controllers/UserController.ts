@@ -29,16 +29,34 @@ class UserController {
   }
 
   @AsyncControllerHandle
+  async getAllAdmins(req: Request, res: Response, next: NextFunction) {
+    const limit = req.query.limit?.toString() || Constants.DEFAULT_PAGE_LIMIT;
+    const page = req.query.page?.toString() || Constants.DEAULT_PAGE_NUM;
+    const result: Array<UserReponse> = await this.userService.getAllAdmins(page, limit);
+    res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
+  async getFreshAdmins(req: Request, res: Response, next: NextFunction) {
+    const result: Array<UserReponse> = await this.userService.getFreshAdmins();
+    res.status(200).send(result);
+  }
+
+  @AsyncControllerHandle
   async getStudents(req: Request, res: Response, next: NextFunction) {
     const orgId = req.query.orgId?.toString() || Constants.EMPTY_STR;
-    const result: UserReponse = await this.userService.getStudents(req.userData.userType, orgId, req.userData.userId);
+    const limit = req.query.limit?.toString() || Constants.DEFAULT_PAGE_LIMIT;
+    const page = req.query.page?.toString() || Constants.DEAULT_PAGE_NUM;
+    const result: Array<UserReponse> = await this.userService.getStudents(req.userData.userType, orgId, req.userData.userId, page, limit);
     res.status(200).send(result);
   }
 
   @AsyncControllerHandle
   async getTeachers(req: Request, res: Response, next: NextFunction) {
     const orgId = req.query.orgId?.toString() || Constants.EMPTY_STR;
-    const result: UserReponse = await this.userService.getTeachers(req.userData.userType, orgId, req.userData.userId);
+    const limit = req.query.limit?.toString() || Constants.DEFAULT_PAGE_LIMIT;
+    const page = req.query.page?.toString() || Constants.DEAULT_PAGE_NUM;
+    const result: Array<UserReponse> = await this.userService.getTeachers(req.userData.userType, orgId, req.userData.userId, page, limit);
     res.status(200).send(result);
   }
 }

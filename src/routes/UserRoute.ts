@@ -9,6 +9,8 @@ const userController: UserController = new UserController();
 // routes begining /ielts/users
 userRoute.get("/", CognitoAuthMiddleware, userController.getUser.bind(userController));
 userRoute.post("/", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.allAdminAccess, userController.createUser.bind(userController));
+userRoute.get("/admins/all", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.SuperAdminAccess, userController.getAllAdmins.bind(userController));
+userRoute.get("/admins/fresh", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.SuperAdminAccess, userController.getFreshAdmins.bind(userController));
 userRoute.get("/students", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.allAdminAccess, userController.getStudents.bind(userController));
 userRoute.get("/teachers", CognitoAuthMiddleware, EndPointAccessVerifyMiddleware.allAdminAccess, userController.getTeachers.bind(userController));
 
