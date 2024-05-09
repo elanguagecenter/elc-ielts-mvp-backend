@@ -95,41 +95,26 @@ export interface GetS3SignedUrlResponse {
   signedUrl: string;
 }
 
+export interface UserDeletePayload {
+  userId: string;
+  orgId?: string;
+}
 export interface UserReponse {
   org_id?: string | null;
+  id: string;
+  email: string;
+  name: string;
+  mobile_number: string;
 }
-
-export interface StudentResponse extends UserReponse {
-  student_id: string;
-  student_email: string;
-  student_name: string;
-  student_mobile_number: string;
-  org_id: string;
-}
+export interface StudentResponse extends UserReponse {}
 
 export interface TeacherResponse extends UserReponse {
-  teacher_id: string;
-  teacher_email: string;
-  teacher_name: string;
-  teacher_mobile_number: string;
-  org_id: string;
   practice_speaking_tests?: Array<PracticeSpeakingTestModel>;
 }
 
-export interface OrgAdminResponse extends UserReponse {
-  admin_id: string;
-  admin_email: string;
-  admin_name: string;
-  admin_mobile_number: string;
-  org_id: string | null;
-}
+export interface OrgAdminResponse extends UserReponse {}
 
-export interface SuperAdminResponse extends UserReponse {
-  super_admin_id: string;
-  super_admin_email: string;
-  super_admin_name: string;
-  super_admin_mobile_number: string;
-}
+export interface SuperAdminResponse extends UserReponse {}
 
 export interface OrganizationResponse {
   org_id: string;
