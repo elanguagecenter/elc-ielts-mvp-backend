@@ -13,9 +13,9 @@ class AuthController {
   }
 
   @AsyncControllerHandle
-  async signInStudent(req: Request, res: Response, next: NextFunction) {
+  async signInUser(req: Request, res: Response, next: NextFunction) {
     const payLoad: UserSigninPayload = req.body;
-    const result: UserSigninResponse = await this.signInService.studentSignIn(payLoad);
+    const result: UserSigninResponse = await this.signInService.userSignIn(payLoad);
     res.status(200).send(result);
   }
 
@@ -27,9 +27,9 @@ class AuthController {
   }
 
   @AsyncControllerHandle
-  async studentSignout(req: Request, res: Response, next: NextFunction) {
+  async userSignout(req: Request, res: Response, next: NextFunction) {
     const accessToken: string = req.headers.singout_token ? req.headers.singout_token.toString() : "";
-    const result: GlobalSignOutCommandOutput = await this.signInService.studentSignout(accessToken);
+    const result: GlobalSignOutCommandOutput = await this.signInService.userSignout(accessToken);
     res.status(200).send(result);
   }
 }
